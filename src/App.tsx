@@ -1,15 +1,12 @@
-import { useMemo, useRef, useState, type ReactElement } from 'react'
-import Map, { NavigationControl, Source, Layer, type MapRef } from 'react-map-gl/mapbox'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import { useState, type ReactElement } from 'react'
 import './App.css'
-import factoryPolygon from './tesla.json'
-import bbox from '@turf/bbox'
 import { Battery, Gauge, Navigation, Signal, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { VideoSection } from '@/components/VideoSection'
 import { NavButton } from '@/components/NavButton'
 import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
+import { FactoryMap } from '@/components/FactoryMap'
 
 type NavItem = {
   id: string
@@ -49,32 +46,7 @@ const navItems: NavItem[] = [
 ]
 
 function App() {
-  const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
-  const mapRef = useRef<MapRef | null>(null)
   const [activeNav, setActiveNav] = useState('dashboard')
-
-  const { bounds, initialViewState } = useMemo(() => {
-    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as any)
-    return {
-      bounds: [[minLng, minLat], [maxLng, maxLat]] as [[number, number], [number, number]],
-      initialViewState: {
-        longitude: (minLng + maxLng) / 2,
-        latitude: (minLat + maxLat) / 2,
-        zoom: 14
-      }
-    }
-  }, [factoryPolygon])
-
-  if (!mapboxToken) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center font-sans">
-        <div>
-          <p><strong>Missing VITE_MAPBOX_TOKEN</strong></p>
-          <p>Add it to a .env file and restart Vite.</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="fixed inset-0 flex">
@@ -93,31 +65,7 @@ function App() {
         </div>
       </nav>
       <div className="flex-1">
-        <Map
-          ref={mapRef}
-          initialViewState={initialViewState}
-          mapStyle="mapbox://styles/mapbox/light-v11"
-          mapboxAccessToken={mapboxToken}
-          style={{ width: '100%', height: '100%' }}
-          onLoad={() => {
-            // Fit to the factory bounds once the style is ready
-            mapRef.current?.fitBounds(bounds, { padding: 40, duration: 800 })
-          }}
-        >
-          <NavigationControl position="top-right" />
-          <Source id="factory" type="geojson" data={factoryPolygon as any}>
-            {/* <Layer
-              id="factory-fill"
-              type="fill"
-              paint={{ 'fill-color': '#3b82f6', 'fill-opacity': 0.25 }}
-            /> */}
-            <Layer
-              id="factory-outline"
-              type="line"
-              paint={{ 'line-color': '#1d4ed8', 'line-width': 2 }}
-            />
-          </Source>
-        </Map>
+        <FactoryMap />
       </div>
       <div className="w-[30%] border-l border-gray-200 bg-white flex flex-col overflow-hidden">
         <VideoSection title="RGB Camera" subtitle="Visible spectrum (color)" src="/rgb.mp4" />
@@ -136,28 +84,30 @@ function App() {
           </div>
           <div className="flex-1 p-2 flex flex-col gap-1.5">
             {/* Two Main Columns */}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-3 gap-1">
               {/* Drone Data Column */}
-              <div className="flex-1 max-w-[48%] space-y-1">
+              <div className="col-span-1 space-y-1">
                 <div className="px-1">
                   <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">Drone Data</h4>
                 </div>
-                <div className="grid grid-cols-4 gap-1">
+                <div className="grid grid-cols-2 gap-1">
                   <TelemetryCard
                     icon={<Compass className="w-3 h-3 text-gray-600 flex-shrink-0" />}
                     label="Bearing"
                     value="045°"
+                    valueColor="text-gray-600"
                   />
                   <TelemetryCard
                     icon={<Shield className="w-3 h-3 text-gray-600 flex-shrink-0" />}
                     label="Flap"
                     value="Closed"
+                    valueColor="text-gray-600"
                   />
                 </div>
               </div>
 
               {/* Docking Station Column */}
-              <div className="flex-1 max-w-[48%] space-y-1">
+              <div className=" col-span-2 space-y-1">
                 <div className="px-1">
                   <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">Docking Station</h4>
                 </div>
@@ -166,14 +116,16 @@ function App() {
                     icon={<Thermometer className="w-3 h-3 text-gray-600 flex-shrink-0" />}
                     label="Temp"
                     value="22°C"
+                    valueColor="text-gray-600"
                   />
                   <TelemetryCard
                     icon={<Droplets className="w-3 h-3 text-gray-600 flex-shrink-0" />}
                     label="Humidity"
                     value="45%"
+                    valueColor="text-gray-600"
                   />
                   <TelemetryCard
-                    icon={<Shield className="w-3 h-3 text-gray-600 flex-shrink-0" />}
+                    icon={<Shield className="w-3 h-3 text-green-600 flex-shrink-0" />}
                     label="Flood"
                     value="OK"
                     valueColor="text-green-600"
@@ -182,26 +134,35 @@ function App() {
                     icon={<div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>}
                     label="Docking"
                     value="Not Confirmed"
+                    valueColor="text-red-600"
                   />
-                </div>
-                <div className="bg-gray-50 p-1 rounded text-center">
-                  <div className="text-[9px] text-gray-400">Presence: No | Autopilot: Standby</div>
                 </div>
               </div>
             </div>
 
-            {/* Control Buttons - Compact */}
-            <div className="grid grid-cols-3 gap-1 pt-0.5">
-              <Button size="sm" variant="secondary" className="h-7 text-xs">
-                <Pause className="w-3 h-3 mr-1" />
+            {/* Mission Status */}
+            <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
+              <div className="flex items-center gap-1 justify-between mb-0.5">
+                <div className="text-[9px] text-gray-500 uppercase tracking-wide">Mission Status</div>
+                <div className="text-[9px] text-gray-500 uppercase tracking-wide">In Progress (43%)</div>
+              </div>
+              <div className="h-2 bg-gray-200 rounded">
+                <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
+              </div>
+            </div>
+
+            {/* Control Buttons - Grouped & Larger */}
+            <div className="inline-flex w-full pt-0.5 rounded-md overflow-hidden">
+              <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none first:rounded-l-md">
+                <Pause className="w-4 h-4 mr-1.5" />
                 Pause
               </Button>
-              <Button size="sm" variant="secondary" className="h-7 text-xs">
-                <Home className="w-3 h-3 mr-1" />
+              <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none">
+                <Home className="w-4 h-4 mr-1.5" />
                 Home
               </Button>
-              <Button size="sm" variant="destructive" className="h-7 text-xs">
-                <Joystick className="w-3 h-3 mr-1" />
+              <Button variant="destructive" className="h-10 text-sm flex-1 rounded-none last:rounded-r-md">
+                <Joystick className="w-4 h-4 mr-1.5" />
                 Control
               </Button>
             </div>
