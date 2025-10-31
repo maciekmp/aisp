@@ -9,6 +9,7 @@ import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
 import { FactoryMap } from '@/components/FactoryMap'
 import bbox from '@turf/bbox'
 import factoryPolygon from './tesla.json'
+import type { Feature, Polygon } from 'geojson'
 
 type NavItem = {
   id: string
@@ -54,7 +55,7 @@ function App() {
 
   // Compute factory bounds and initial center
   const { bounds, center } = useMemo(() => {
-    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as any)
+    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as unknown as Feature<Polygon>)
     return {
       bounds: { minLng, minLat, maxLng, maxLat },
       center: { longitude: (minLng + maxLng) / 2, latitude: (minLat + maxLat) / 2 }
@@ -97,8 +98,9 @@ function App() {
     window.addEventListener('keydown', onDown, { capture: true, passive: false })
     window.addEventListener('keyup', onUp, { capture: true, passive: false })
     return () => {
-      window.removeEventListener('keydown', onDown, { capture: true } as any)
-      window.removeEventListener('keyup', onUp, { capture: true } as any)
+      const removeOptions: AddEventListenerOptions = { capture: true }
+      window.removeEventListener('keydown', onDown, removeOptions)
+      window.removeEventListener('keyup', onUp, removeOptions)
     }
   }, [mode])
 

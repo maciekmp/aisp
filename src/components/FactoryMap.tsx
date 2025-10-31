@@ -3,6 +3,7 @@ import Map, { NavigationControl, Source, Layer, Marker, type MapRef } from 'reac
 import 'mapbox-gl/dist/mapbox-gl.css'
 import factoryPolygon from '../tesla.json'
 import bbox from '@turf/bbox'
+import type { Feature, Polygon } from 'geojson'
 
 type MarkerData = { longitude: number; latitude: number; headingDegrees?: number }
 
@@ -12,7 +13,8 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
   const { bounds, initialViewState } = useMemo(() => {
-    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as any)
+    const feature = factoryPolygon as unknown as Feature<Polygon>
+    const [minLng, minLat, maxLng, maxLat] = bbox(feature)
     return {
       bounds: [[minLng, minLat], [maxLng, maxLat]] as [[number, number], [number, number]],
       initialViewState: {
@@ -80,7 +82,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
       }}
     >
       <NavigationControl position="top-right" />
-      <Source id="factory" type="geojson" data={factoryPolygon as any}>
+      <Source id="factory" type="geojson" data={factoryPolygon as unknown as Feature<Polygon>}>
         <Layer
           id="factory-fill"
           type="fill"

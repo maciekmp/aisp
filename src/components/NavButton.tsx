@@ -8,7 +8,7 @@ interface NavButtonProps {
   onClick: () => void
 }
 
-export function NavButton({ id, label, icon, isActive, onClick }: NavButtonProps) {
+export function NavButton({ label, icon, isActive, onClick }: NavButtonProps) {
   return (
     <div className="relative group">
       <button
