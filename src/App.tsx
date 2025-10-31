@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 import './App.css'
 import { Battery, Gauge, Navigation, Signal, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -7,6 +7,8 @@ import { NavButton } from '@/components/NavButton'
 import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
 import { FactoryMap } from '@/components/FactoryMap'
+import bbox from '@turf/bbox'
+import factoryPolygon from './tesla.json'
 
 type NavItem = {
   id: string
@@ -47,6 +49,145 @@ const navItems: NavItem[] = [
 
 function App() {
   const [activeNav, setActiveNav] = useState('dashboard')
+  const [mode, setMode] = useState<'manual' | 'auto'>('auto')
+  const [speedMps, setSpeedMps] = useState(0)
+
+  // Compute factory bounds and initial center
+  const { bounds, center } = useMemo(() => {
+    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as any)
+    return {
+      bounds: { minLng, minLat, maxLng, maxLat },
+      center: { longitude: (minLng + maxLng) / 2, latitude: (minLat + maxLat) / 2 }
+    }
+  }, [])
+
+  // Drone state exposed to map
+  const [drone, setDrone] = useState<{ longitude: number; latitude: number; headingDegrees: number }>({
+    longitude: center.longitude,
+    latitude: center.latitude,
+    headingDegrees: 45
+  })
+
+  // Optional: base at center
+  const base = useMemo(() => ({ longitude: center.longitude, latitude: center.latitude, headingDegrees: 0 }), [center.longitude, center.latitude])
+
+  // Input tracking
+  const keys = useRef({ up: false, down: false, left: false, right: false })
+
+  useEffect(() => {
+    const onDown = (e: KeyboardEvent) => {
+      if (mode !== 'manual') return
+      let handled = false
+      if (e.key === 'ArrowUp') { keys.current.up = true; handled = true }
+      if (e.key === 'ArrowDown') { keys.current.down = true; handled = true }
+      if (e.key === 'ArrowLeft') { keys.current.left = true; handled = true }
+      if (e.key === 'ArrowRight') { keys.current.right = true; handled = true }
+      if (handled) e.preventDefault()
+    }
+    const onUp = (e: KeyboardEvent) => {
+      if (mode !== 'manual') return
+      let handled = false
+      if (e.key === 'ArrowUp') { keys.current.up = false; handled = true }
+      if (e.key === 'ArrowDown') { keys.current.down = false; handled = true }
+      if (e.key === 'ArrowLeft') { keys.current.left = false; handled = true }
+      if (e.key === 'ArrowRight') { keys.current.right = false; handled = true }
+      if (handled) e.preventDefault()
+    }
+    // Capture phase so we process before mapbox handlers; passive false to allow preventDefault
+    window.addEventListener('keydown', onDown, { capture: true, passive: false })
+    window.addEventListener('keyup', onUp, { capture: true, passive: false })
+    return () => {
+      window.removeEventListener('keydown', onDown, { capture: true } as any)
+      window.removeEventListener('keyup', onUp, { capture: true } as any)
+    }
+  }, [mode])
+
+  // Physics loop with simple inertia
+  useEffect(() => {
+    let raf = 0
+    let last = performance.now()
+    // Maintain motion state in refs to avoid stale closures
+    let posLng = drone.longitude
+    let posLat = drone.latitude
+    let yaw = (drone.headingDegrees * Math.PI) / 180
+    let velX = 0
+    let velY = 0
+
+    const maxSpeed = 0.00002 // deg/frame scaled
+    const accel = 0.00006
+    const drag = 0.90
+    const yawRateDegPerFrame = 2.0
+
+    const loop = (t: number) => {
+      const dt = Math.min(0.05, (t - last) / 1000) // seconds
+      last = t
+
+      // Scale per-frame constants to dt ~ 60fps baseline
+      const scale = dt * 60
+
+      // Control mode: manual uses keys, auto ignores keys and moves forward with bounce
+      if (mode === 'manual') {
+        if (keys.current.left) yaw -= (yawRateDegPerFrame * Math.PI / 180) * scale
+        if (keys.current.right) yaw += (yawRateDegPerFrame * Math.PI / 180) * scale
+      }
+      let thrust = 0
+      if (mode === 'manual') {
+        if (keys.current.up) thrust += accel
+        if (keys.current.down) thrust -= accel
+      } else {
+        // In auto, gently maintain a cruising speed forward
+        const desiredSpeed = maxSpeed * 0.8
+        const currentSpeed = Math.hypot(velX, velY)
+        const speedError = desiredSpeed - currentSpeed
+        thrust = Math.max(-accel, Math.min(accel, speedError * 0.5))
+      }
+
+      // Map forward so that heading 0° is north (latitude+)
+      const ax = Math.sin(yaw) * thrust
+      const ay = Math.cos(yaw) * thrust
+
+      velX = (velX + ax * scale) * drag
+      velY = (velY + ay * scale) * drag
+
+      const speed = Math.hypot(velX, velY)
+      if (speed > maxSpeed) {
+        const s = maxSpeed / speed
+        velX *= s
+        velY *= s
+      }
+
+      posLng += velX
+      posLat += velY
+
+      // Compute instantaneous speed in m/s from degree displacement over dt
+      const metersPerDegLat = 111320
+      const metersPerDegLon = 111320 * Math.cos(posLat * Math.PI / 180)
+      const dxMeters = velX * metersPerDegLon
+      const dyMeters = velY * metersPerDegLat
+      const instSpeed = dt > 0 ? Math.hypot(dxMeters, dyMeters) / dt : 0
+      setSpeedMps(instSpeed)
+
+      // Bounce on bounds in auto; clamp in manual
+      const margin = 1e-9
+      if (mode === 'auto') {
+        if (posLng <= bounds.minLng + margin && velX < 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
+        if (posLng >= bounds.maxLng - margin && velX > 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
+        if (posLat <= bounds.minLat + margin && velY < 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
+        if (posLat >= bounds.maxLat - margin && velY > 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
+        posLng = Math.min(bounds.maxLng, Math.max(bounds.minLng, posLng))
+        posLat = Math.min(bounds.maxLat, Math.max(bounds.minLat, posLat))
+      } else {
+        posLng = Math.min(bounds.maxLng, Math.max(bounds.minLng, posLng))
+        posLat = Math.min(bounds.maxLat, Math.max(bounds.minLat, posLat))
+      }
+
+      setDrone({ longitude: posLng, latitude: posLat, headingDegrees: ((yaw * 180) / Math.PI + 360) % 360 })
+      raf = requestAnimationFrame(loop)
+    }
+
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [mode])
 
   return (
     <div className="fixed inset-0 flex">
@@ -64,8 +205,63 @@ function App() {
           ))}
         </div>
       </nav>
-      <div className="flex-1">
-        <FactoryMap />
+      <div className="flex-1 relative">
+        <FactoryMap base={base} drone={drone} />
+        {mode === 'manual' && (
+          <div className="absolute left-2 bottom-2 select-none">
+            <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
+              <div className="grid grid-cols-3 gap-1">
+                <div />
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.up = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.up = false }}
+                  onPointerLeave={() => { keys.current.up = false }}
+                  aria-label="Forward"
+                  title="Forward"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                </button>
+                <div />
+
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.left = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.left = false }}
+                  onPointerLeave={() => { keys.current.left = false }}
+                  aria-label="Turn Left"
+                  title="Turn Left"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h13"/><path d="m11 5-7 7 7 7"/></svg>
+                </button>
+                <div className="h-9 w-9" />
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.right = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.right = false }}
+                  onPointerLeave={() => { keys.current.right = false }}
+                  aria-label="Turn Right"
+                  title="Turn Right"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12h13"/><path d="m13 5 7 7-7 7"/></svg>
+                </button>
+
+                <div />
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.down = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.down = false }}
+                  onPointerLeave={() => { keys.current.down = false }}
+                  aria-label="Backward"
+                  title="Backward"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                </button>
+                <div />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <div className="w-[30%] border-l border-gray-200 bg-white flex flex-col overflow-hidden">
         <VideoSection title="RGB Camera" subtitle="Visible spectrum (color)" src="/rgb.mp4" />
@@ -78,7 +274,7 @@ function App() {
             <div className="flex items-center gap-3">
               <TelemetryHeaderItem icon={<Battery className="w-3.5 h-3.5 text-gray-600" />} value="85%" />
               <TelemetryHeaderItem icon={<Signal className="w-3.5 h-3.5 text-green-600" />} value="Strong" />
-              <TelemetryHeaderItem icon={<Navigation className="w-3.5 h-3.5 text-gray-600" />} value="12.3 m/s" />
+              <TelemetryHeaderItem icon={<Navigation className="w-3.5 h-3.5 text-gray-600" />} value={`${speedMps.toFixed(1)} m/s`} />
               <TelemetryHeaderItem icon={<Gauge className="w-3.5 h-3.5 text-gray-600" />} value="42.5m" />
             </div>
           </div>
@@ -94,7 +290,7 @@ function App() {
                   <TelemetryCard
                     icon={<Compass className="w-3 h-3 text-gray-600 flex-shrink-0" />}
                     label="Bearing"
-                    value="045°"
+                    value={`${Math.round(drone.headingDegrees).toString().padStart(3, '0')}°`}
                     valueColor="text-gray-600"
                   />
                   <TelemetryCard
@@ -140,16 +336,24 @@ function App() {
               </div>
             </div>
 
-            {/* Mission Status */}
-            <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
-              <div className="flex items-center gap-1 justify-between mb-0.5">
-                <div className="text-[9px] text-gray-500 uppercase tracking-wide">Mission Status</div>
-                <div className="text-[9px] text-gray-500 uppercase tracking-wide">In Progress (43%)</div>
+            {/* Mission Status (auto) or Instructions (manual) */}
+            {mode === 'auto' ? (
+              <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
+                <div className="flex items-center gap-1 justify-between mb-0.5">
+                  <div className="text-[9px] text-gray-500 uppercase tracking-wide">Mission Status</div>
+                  <div className="text-[9px] text-gray-500 uppercase tracking-wide">In Progress (43%)</div>
+                </div>
+                <div className="h-2 bg-gray-200 rounded">
+                  <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
+                </div>
               </div>
-              <div className="h-2 bg-gray-200 rounded">
-                <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
+            ) : (
+              <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
+                <div className="text-[9px] text-gray-600 text-center">
+                  Use Arrow keys to steer. Switch to Auto with the Control button.
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Control Buttons - Grouped & Larger */}
             <div className="inline-flex w-full pt-0.5 rounded-md overflow-hidden">
@@ -161,9 +365,14 @@ function App() {
                 <Home className="w-4 h-4 mr-1.5" />
                 Home
               </Button>
-              <Button variant="destructive" className="h-10 text-sm flex-1 rounded-none last:rounded-r-md">
+              <Button
+                variant="destructive"
+                className="h-10 text-sm flex-1 rounded-none last:rounded-r-md"
+                onClick={() => setMode((m) => (m === 'manual' ? 'auto' : 'manual'))}
+                title={mode === 'manual' ? 'Switch to Auto' : 'Switch to Manual'}
+              >
                 <Joystick className="w-4 h-4 mr-1.5" />
-                Control
+                {mode === 'auto' ? 'Manual' : 'Auto'}
               </Button>
             </div>
           </div>
