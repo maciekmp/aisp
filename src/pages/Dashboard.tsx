@@ -191,7 +191,12 @@ export function Dashboard() {
           </div>
         ) : (
           <>
-            <MapView base={base} drone={drone} />
+            <MapView 
+              base={base} 
+              drone={drone}
+              title="Mission Map"
+              subtitle="Real-time flight tracking"
+            />
             {mode === 'manual' && (
               <div className="absolute left-2 bottom-2 select-none">
                 <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
@@ -255,7 +260,13 @@ export function Dashboard() {
       <div className="w-[30%] border-l border-gray-200 bg-white flex flex-col overflow-hidden">
         {expandedVideo === 'rgb' ? (
           <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
-            <MapView base={base} drone={drone} showLegend={false} />
+            <MapView 
+              base={base} 
+              drone={drone} 
+              showLegend={false}
+              title="Mission Map"
+              subtitle="Real-time flight tracking"
+            />
           </div>
         ) : (
           <VideoSection 
@@ -269,7 +280,13 @@ export function Dashboard() {
         )}
         {expandedVideo === 'thermal' ? (
           <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
-            <MapView base={base} drone={drone} showLegend={false} />
+            <MapView 
+              base={base} 
+              drone={drone} 
+              showLegend={false}
+              title="Mission Map"
+              subtitle="Real-time flight tracking"
+            />
           </div>
         ) : (
           <VideoSection 

@@ -46,8 +46,10 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
  * @param props.drone - Drone marker position and heading
  * @param props.showLegend - Whether to show the map legend (default: true)
  * @param props.onClick - Callback when map is clicked (receives lng/lat coordinates)
+ * @param props.title - Map section title
+ * @param props.subtitle - Optional subtitle text
  */
-export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void }) {
+export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void; title?: string; subtitle?: string }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -233,6 +235,18 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
       onClick={props?.onClick}
     >
       <NavigationControl position="top-right" showCompass={false} />
+      
+      {/* Header */}
+      {(props?.title || props?.subtitle) && (
+        <div className="absolute top-0 left-0 right-0 px-3 py-1.5 z-10">
+          {props.title && (
+            <h3 className="text-xs font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">{props.title}</h3>
+          )}
+          {props.subtitle && (
+            <p className="text-[10px] text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] mt-0.5">{props.subtitle}</p>
+          )}
+        </div>
+      )}
       
       {/* Layer Toggle Dropdown */}
       <div ref={dropdownRef} className="absolute top-0 right-0 z-10" style={{ marginTop: '80px', marginRight: '10px' }}>
@@ -422,7 +436,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6 grid grid-cols-3">
             {/* Markers */}
             <div>
               <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Markers</h4>
@@ -449,9 +463,9 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
             </div>
 
             {/* Layers */}
-            <div>
+            <div className="col-span-2">
               <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Layers</h4>
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded border-2 border-blue-600" style={{ backgroundColor: 'rgba(59, 130, 246, 0.25)' }}></div>
                   <div>
