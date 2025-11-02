@@ -222,6 +222,8 @@ function App() {
                 src="/rgb.mp4"
                 onExpand={() => setExpandedVideo(null)}
                 isExpanded={true}
+                onTakePhoto={() => {}}
+                onSaveClip={() => {}}
               />
             ) : (
               <VideoSection 
@@ -231,6 +233,8 @@ function App() {
                 filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
                 onExpand={() => setExpandedVideo(null)}
                 isExpanded={true}
+                onTakePhoto={() => {}}
+                onSaveClip={() => {}}
               />
             )}
           </div>
@@ -308,6 +312,8 @@ function App() {
             subtitle="Visible spectrum (color)" 
             src="/rgb.mp4"
             onExpand={() => setExpandedVideo('rgb')}
+            onTakePhoto={() => {}}
+            onSaveClip={() => {}}
           />
         )}
         {expandedVideo === 'thermal' ? (
@@ -321,6 +327,8 @@ function App() {
             src="/rgb.mp4" 
             filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
             onExpand={() => setExpandedVideo('thermal')}
+            onTakePhoto={() => {}}
+            onSaveClip={() => {}}
           />
         )}
 

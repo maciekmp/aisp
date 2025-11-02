@@ -1,4 +1,4 @@
-import { Expand, Minimize2 } from 'lucide-react'
+import { Expand, Minimize2, Camera } from 'lucide-react'
 
 interface VideoSectionProps {
   title: string
@@ -7,9 +7,11 @@ interface VideoSectionProps {
   filter?: string
   onExpand?: () => void
   isExpanded?: boolean
+  onTakePhoto?: () => void
+  onSaveClip?: () => void
 }
 
-export function VideoSection({ title, src, subtitle, filter, onExpand, isExpanded }: VideoSectionProps) {
+export function VideoSection({ title, src, subtitle, filter, onExpand, isExpanded, onTakePhoto, onSaveClip }: VideoSectionProps) {
   return (
     <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
       <div className="flex-1 flex items-center justify-center bg-black relative">
@@ -27,20 +29,42 @@ export function VideoSection({ title, src, subtitle, filter, onExpand, isExpande
             <p className="text-[10px] text-white/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] mt-0.5">{subtitle}</p>
           ) : null}
         </div>
-        {onExpand && (
-          <button
-            onClick={onExpand}
-            className="absolute top-2 right-2 z-20 bg-black/30 hover:bg-black/50 rounded p-1.5 transition-colors backdrop-blur-sm"
-            title={isExpanded ? "Collapse video" : "Expand video"}
-            aria-label={isExpanded ? "Collapse video" : "Expand video to center"}
-          >
-            {isExpanded ? (
-              <Minimize2 className="w-4 h-4 text-white" />
-            ) : (
-              <Expand className="w-4 h-4 text-white" />
-            )}
-          </button>
-        )}
+        <div className="absolute top-2 right-2 z-20 flex flex-col gap-2">
+          {onExpand && (
+            <button
+              onClick={onExpand}
+              className="w-12 h-8 bg-black/30 hover:bg-black/50 rounded flex items-center justify-center transition-colors backdrop-blur-sm"
+              title={isExpanded ? "Collapse video" : "Expand video"}
+              aria-label={isExpanded ? "Collapse video" : "Expand video to center"}
+            >
+              {isExpanded ? (
+                <Minimize2 className="w-4 h-4 text-white" />
+              ) : (
+                <Expand className="w-4 h-4 text-white" />
+              )}
+            </button>
+          )}
+          {onTakePhoto && (
+            <button
+              onClick={onTakePhoto}
+              className="w-12 h-8 bg-black/30 hover:bg-black/50 rounded flex items-center justify-center transition-colors backdrop-blur-sm"
+              title="Take photo"
+              aria-label="Take photo"
+            >
+              <Camera className="w-4 h-4 text-white" />
+            </button>
+          )}
+          {onSaveClip && (
+            <button
+              onClick={onSaveClip}
+              className="w-12 h-8 bg-black/30 hover:bg-black/50 rounded flex items-center justify-center transition-colors backdrop-blur-sm"
+              title="Save clip"
+              aria-label="Save clip"
+            >
+              <span className="text-xs text-white font-medium">30s</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
