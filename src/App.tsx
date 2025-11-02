@@ -400,7 +400,7 @@ function App() {
                   <TelemetryCard
                     icon={<div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>}
                     label="Docking"
-                    value="Not Confirmed"
+                    value="No"
                     valueColor="text-red-600"
                   />
                 </div>
@@ -428,17 +428,17 @@ function App() {
 
             {/* Control Buttons - Grouped & Larger */}
             <div className="inline-flex w-full pt-0.5 rounded-md overflow-hidden">
-              <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none first:rounded-l-md">
+              <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none first:rounded-l-md bg-yellow-200 hover:bg-yellow-300 text-yellow-800">
                 <Pause className="w-4 h-4 mr-1.5" />
                 Pause
               </Button>
-              <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none">
+              <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none bg-blue-200 hover:bg-blue-300 text-blue-800">
                 <Home className="w-4 h-4 mr-1.5" />
                 Home
               </Button>
               <Button
                 variant="destructive"
-                className="h-10 text-sm flex-1 rounded-none last:rounded-r-md"
+                className="h-10 text-sm flex-1 rounded-none last:rounded-r-md bg-red-200 hover:bg-red-300 text-red-800"
                 onClick={() => setMode((m) => (m === 'manual' ? 'auto' : 'manual'))}
                 title={mode === 'manual' ? 'Switch to Auto' : 'Switch to Manual'}
               >
