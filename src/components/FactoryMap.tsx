@@ -1,19 +1,43 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import Map, { NavigationControl, Source, Layer, Marker, type MapRef } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import factoryPolygon from '../tesla.json'
+import { Layers } from 'lucide-react'
+import controlledAreaPolygon from '../tesla.json'
 import bbox from '@turf/bbox'
-import type { Feature, Polygon } from 'geojson'
+import type { Feature, Polygon, LineString, Point, FeatureCollection } from 'geojson'
 
 type MarkerData = { longitude: number; latitude: number; headingDegrees?: number }
 
 export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
   const mapRef = useRef<MapRef | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [satelliteView, setSatelliteView] = useState(false)
+  const [showControlledArea, setShowControlledArea] = useState(true)
+  const [showMissionPath, setShowMissionPath] = useState(true)
+  const [showAlerts, setShowAlerts] = useState(true)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isDropdownOpen])
 
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
-  const { bounds, initialViewState } = useMemo(() => {
-    const feature = factoryPolygon as unknown as Feature<Polygon>
+  const { bounds, initialViewState, controlledAreaFeature } = useMemo(() => {
+    const feature = controlledAreaPolygon as unknown as Feature<Polygon>
     const [minLng, minLat, maxLng, maxLat] = bbox(feature)
     return {
       bounds: [[minLng, minLat], [maxLng, maxLat]] as [[number, number], [number, number]],
@@ -21,9 +45,63 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
         longitude: (minLng + maxLng) / 2,
         latitude: (minLat + maxLat) / 2,
         zoom: 14
-      }
+      },
+      controlledAreaFeature: feature
     }
   }, [])
+
+  // Placeholder mission path (example LineString)
+  const missionPath = useMemo<FeatureCollection<LineString>>(() => {
+    const centerLng = initialViewState.longitude
+    const centerLat = initialViewState.latitude
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [centerLng - 0.002, centerLat - 0.002],
+              [centerLng - 0.001, centerLat - 0.001],
+              [centerLng, centerLat],
+              [centerLng + 0.001, centerLat + 0.001],
+              [centerLng + 0.002, centerLat + 0.002],
+              [centerLng + 0.002, centerLat + 0.003],
+            ]
+          },
+          properties: {}
+        }
+      ]
+    }
+  }, [initialViewState.longitude, initialViewState.latitude])
+
+  // Placeholder alerts (example Points)
+  const alerts = useMemo<FeatureCollection<Point>>(() => {
+    const centerLng = initialViewState.longitude
+    const centerLat = initialViewState.latitude
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [centerLng + 0.001, centerLat + 0.0015]
+          },
+          properties: { type: 'warning', message: 'Obstacle detected' }
+        },
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [centerLng - 0.0015, centerLat + 0.002]
+          },
+          properties: { type: 'error', message: 'Restricted zone' }
+        }
+      ]
+    }
+  }, [initialViewState.longitude, initialViewState.latitude])
 
   // Positions and headings (defaults if not provided)
   const baseLon = props?.base?.longitude ?? initialViewState.longitude
@@ -70,11 +148,15 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
     )
   }
 
+  const mapStyle = satelliteView 
+    ? "mapbox://styles/mapbox/satellite-v9" 
+    : "mapbox://styles/mapbox/light-v11"
+
   return (
     <Map
       ref={mapRef}
       initialViewState={initialViewState}
-      mapStyle="mapbox://styles/mapbox/light-v11"
+      mapStyle={mapStyle}
       mapboxAccessToken={mapboxToken}
       style={{ width: '100%', height: '100%' }}
       dragRotate={false}
@@ -85,16 +167,119 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
       }}
     >
       <NavigationControl position="top-right" showCompass={false} />
-      <Source id="factory" type="geojson" data={factoryPolygon as unknown as Feature<Polygon>}>
+      
+      {/* Layer Toggle Dropdown */}
+      <div ref={dropdownRef} className="absolute top-0 right-0 z-10" style={{ marginTop: '80px', marginRight: '10px' }}>
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 w-7 h-7 flex items-center justify-center transition-colors"
+          title="Map Layers"
+          aria-label="Toggle map layers"
+        >
+          <Layers className="w-4 h-4 text-gray-700" />
+        </button>
+        
+        {isDropdownOpen && (
+          <div className="absolute top-full right-0 mt-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-2 w-48">
+            <div className="text-xs font-semibold text-gray-700 px-2 py-1.5 border-b border-gray-200 mb-1">
+              Map Layers
+            </div>
+            <div className="space-y-1">
+              <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={satelliteView}
+                  onChange={(e) => setSatelliteView(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="text-sm text-gray-700">Satellite View</span>
+              </label>
+              <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showControlledArea}
+                  onChange={(e) => setShowControlledArea(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="text-sm text-gray-700">Controlled Area</span>
+              </label>
+              <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showMissionPath}
+                  onChange={(e) => setShowMissionPath(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="text-sm text-gray-700">Mission Path</span>
+              </label>
+              <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showAlerts}
+                  onChange={(e) => setShowAlerts(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="text-sm text-gray-700">Alerts</span>
+              </label>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Controlled Area Layer */}
+      <Source id="controlledArea" type="geojson" data={controlledAreaFeature}>
         <Layer
-          id="factory-fill"
+          id="controlledArea-fill"
           type="fill"
+          layout={{ visibility: showControlledArea ? 'visible' : 'none' }}
           paint={{ 'fill-color': '#3b82f6', 'fill-opacity': 0.25 }}
         />
         <Layer
-          id="factory-outline"
+          id="controlledArea-outline"
           type="line"
+          layout={{ visibility: showControlledArea ? 'visible' : 'none' }}
           paint={{ 'line-color': '#1d4ed8', 'line-width': 2 }}
+        />
+      </Source>
+
+      {/* Mission Path Layer */}
+      <Source id="missionPath" type="geojson" data={missionPath}>
+        <Layer
+          id="missionPath-line"
+          type="line"
+          layout={{ 
+            visibility: showMissionPath ? 'visible' : 'none',
+            'line-join': 'round',
+            'line-cap': 'round'
+          }}
+          paint={{ 
+            'line-color': '#10b981',
+            'line-width': 3,
+            'line-dasharray': [2, 2]
+          }}
+        />
+      </Source>
+
+      {/* Alerts Layer */}
+      <Source id="alerts" type="geojson" data={alerts}>
+        <Layer
+          id="alerts-circle"
+          type="circle"
+          layout={{ visibility: showAlerts ? 'visible' : 'none' }}
+          paint={{
+            'circle-radius': 8,
+            'circle-color': [
+              'match',
+              ['get', 'type'],
+              'error',
+              '#ef4444',
+              'warning',
+              '#f59e0b',
+              '#3b82f6'
+            ],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff'
+          }}
         />
       </Source>
 
