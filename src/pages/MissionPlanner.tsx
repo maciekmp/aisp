@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { MapView } from '@/components/MapView'
 import { Button } from '@/components/ui/button'
-import { MapPin, Trash2, Calendar, Route } from 'lucide-react'
+import { Trash2, Calendar, Route } from 'lucide-react'
 import bbox from '@turf/bbox'
 import factoryPolygon from '../tesla.json'
 import type { Feature, Polygon } from 'geojson'
@@ -20,10 +20,9 @@ export function MissionPlanner() {
   const [editingWaypoint, setEditingWaypoint] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
 
-  const { bounds, center } = useMemo(() => {
+  const { center } = useMemo(() => {
     const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as unknown as Feature<Polygon>)
     return {
-      bounds: { minLng, minLat, maxLng, maxLat },
       center: { longitude: (minLng + maxLng) / 2, latitude: (minLat + maxLat) / 2 }
     }
   }, [])
@@ -135,7 +134,7 @@ export function MissionPlanner() {
                   <div className="space-y-2">
                     {waypoints
                       .sort((a, b) => a.order - b.order)
-                      .map((waypoint, index) => (
+                      .map((waypoint) => (
                         <div
                           key={waypoint.id}
                           className="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between"

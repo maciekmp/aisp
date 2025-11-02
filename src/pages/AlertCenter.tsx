@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, Image, Video, FileText, Download, Filter, X } from 'lucide-react'
+import { Image, Video, FileText, Filter, X } from 'lucide-react'
 
 type Alert = {
   id: string

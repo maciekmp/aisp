@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Battery, Mountain, Navigation, Radio, Satellite, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass, Rocket } from 'lucide-react'
+import { Battery, Mountain, Navigation, Radio, Satellite, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { VideoSection } from '@/components/VideoSection'
 import { TelemetryCard } from '@/components/TelemetryCard'
@@ -151,6 +151,7 @@ export function Dashboard() {
 
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode])
 
   const isExpanded = expandedVideo !== null

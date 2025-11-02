@@ -157,7 +157,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
         return prev
       })
     }
-  }, [props?.drone?.longitude, props?.drone?.latitude])
+  }, [props?.drone])
 
   // Drone trace as LineString
   const droneTracePath = useMemo<FeatureCollection<LineString>>(() => {
