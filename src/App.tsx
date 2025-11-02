@@ -52,6 +52,7 @@ function App() {
   const [activeNav, setActiveNav] = useState('dashboard')
   const [mode, setMode] = useState<'manual' | 'auto'>('auto')
   const [speedMps, setSpeedMps] = useState(0)
+  const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>(null)
 
   // Compute factory bounds and initial center
   const { bounds, center } = useMemo(() => {
@@ -191,6 +192,8 @@ function App() {
     return () => cancelAnimationFrame(raf)
   }, [mode])
 
+  const isExpanded = expandedVideo !== null
+
   return (
     <div className="fixed inset-0 flex">
       <nav className="w-16 bg-gray-900 text-white flex flex-col border-r border-gray-800">
@@ -207,67 +210,119 @@ function App() {
           ))}
         </div>
       </nav>
+      
+      {/* Center area - shows MapView or expanded VideoSection */}
       <div className="flex-1 relative">
-        <MapView base={base} drone={drone} />
-        {mode === 'manual' && (
-          <div className="absolute left-2 bottom-2 select-none">
-            <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
-              <div className="grid grid-cols-3 gap-1">
-                <div />
-                <button
-                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                  onPointerDown={(e) => { e.preventDefault(); keys.current.up = true }}
-                  onPointerUp={(e) => { e.preventDefault(); keys.current.up = false }}
-                  onPointerLeave={() => { keys.current.up = false }}
-                  aria-label="Forward"
-                  title="Forward"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-                </button>
-                <div />
-
-                <button
-                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                  onPointerDown={(e) => { e.preventDefault(); keys.current.left = true }}
-                  onPointerUp={(e) => { e.preventDefault(); keys.current.left = false }}
-                  onPointerLeave={() => { keys.current.left = false }}
-                  aria-label="Turn Left"
-                  title="Turn Left"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h13"/><path d="m11 5-7 7 7 7"/></svg>
-                </button>
-                <div className="h-9 w-9" />
-                <button
-                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                  onPointerDown={(e) => { e.preventDefault(); keys.current.right = true }}
-                  onPointerUp={(e) => { e.preventDefault(); keys.current.right = false }}
-                  onPointerLeave={() => { keys.current.right = false }}
-                  aria-label="Turn Right"
-                  title="Turn Right"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12h13"/><path d="m13 5 7 7-7 7"/></svg>
-                </button>
-
-                <div />
-                <button
-                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                  onPointerDown={(e) => { e.preventDefault(); keys.current.down = true }}
-                  onPointerUp={(e) => { e.preventDefault(); keys.current.down = false }}
-                  onPointerLeave={() => { keys.current.down = false }}
-                  aria-label="Backward"
-                  title="Backward"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-                </button>
-                <div />
-              </div>
-            </div>
+        {isExpanded ? (
+          <div className="w-full h-full flex flex-col bg-black">
+            {expandedVideo === 'rgb' ? (
+              <VideoSection 
+                title="RGB Camera" 
+                subtitle="Visible spectrum (color)" 
+                src="/rgb.mp4"
+                onExpand={() => setExpandedVideo(null)}
+                isExpanded={true}
+              />
+            ) : (
+              <VideoSection 
+                title="Thermal Camera" 
+                subtitle="Infrared heat visualization" 
+                src="/rgb.mp4" 
+                filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
+                onExpand={() => setExpandedVideo(null)}
+                isExpanded={true}
+              />
+            )}
           </div>
+        ) : (
+          <>
+            <MapView base={base} drone={drone} />
+            {mode === 'manual' && (
+              <div className="absolute left-2 bottom-2 select-none">
+                <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
+                  <div className="grid grid-cols-3 gap-1">
+                    <div />
+                    <button
+                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                      onPointerDown={(e) => { e.preventDefault(); keys.current.up = true }}
+                      onPointerUp={(e) => { e.preventDefault(); keys.current.up = false }}
+                      onPointerLeave={() => { keys.current.up = false }}
+                      aria-label="Forward"
+                      title="Forward"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                    </button>
+                    <div />
+
+                    <button
+                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                      onPointerDown={(e) => { e.preventDefault(); keys.current.left = true }}
+                      onPointerUp={(e) => { e.preventDefault(); keys.current.left = false }}
+                      onPointerLeave={() => { keys.current.left = false }}
+                      aria-label="Turn Left"
+                      title="Turn Left"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h13"/><path d="m11 5-7 7 7 7"/></svg>
+                    </button>
+                    <div className="h-9 w-9" />
+                    <button
+                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                      onPointerDown={(e) => { e.preventDefault(); keys.current.right = true }}
+                      onPointerUp={(e) => { e.preventDefault(); keys.current.right = false }}
+                      onPointerLeave={() => { keys.current.right = false }}
+                      aria-label="Turn Right"
+                      title="Turn Right"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12h13"/><path d="m13 5 7 7-7 7"/></svg>
+                    </button>
+
+                    <div />
+                    <button
+                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                      onPointerDown={(e) => { e.preventDefault(); keys.current.down = true }}
+                      onPointerUp={(e) => { e.preventDefault(); keys.current.down = false }}
+                      onPointerLeave={() => { keys.current.down = false }}
+                      aria-label="Backward"
+                      title="Backward"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                    </button>
+                    <div />
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
+      
+      {/* Sidebar - shows VideoSections or MapView when expanded */}
       <div className="w-[30%] border-l border-gray-200 bg-white flex flex-col overflow-hidden">
-        <VideoSection title="RGB Camera" subtitle="Visible spectrum (color)" src="/rgb.mp4" />
-        <VideoSection title="Thermal Camera" subtitle="Infrared heat visualization" src="/rgb.mp4" filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)" />
+        {expandedVideo === 'rgb' ? (
+          <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
+            <MapView base={base} drone={drone} showLegend={false} />
+          </div>
+        ) : (
+          <VideoSection 
+            title="RGB Camera" 
+            subtitle="Visible spectrum (color)" 
+            src="/rgb.mp4"
+            onExpand={() => setExpandedVideo('rgb')}
+          />
+        )}
+        {expandedVideo === 'thermal' ? (
+          <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
+            <MapView base={base} drone={drone} showLegend={false} />
+          </div>
+        ) : (
+          <VideoSection 
+            title="Thermal Camera" 
+            subtitle="Infrared heat visualization" 
+            src="/rgb.mp4" 
+            filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
+            onExpand={() => setExpandedVideo('thermal')}
+          />
+        )}
 
         {/* Section 3: Drone Telemetry */}
         <div className="flex-1 flex flex-col overflow-hidden">

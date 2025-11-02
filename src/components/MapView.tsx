@@ -32,11 +32,12 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
   )
 }
 
-export function MapView(props?: { base?: MarkerData; drone?: MarkerData }) {
+export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isLegendOpen, setIsLegendOpen] = useState(false)
+  const showLegend = props?.showLegend !== false // default to true if not specified
   const [satelliteView, setSatelliteView] = useState(false)
   const [showControlledArea, setShowControlledArea] = useState(true)
   const [showMissionPath, setShowMissionPath] = useState(true)
@@ -369,24 +370,26 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData }) {
       </Marker>
 
       {/* Help Button with Legend Panel */}
-      <div className="absolute bottom-6 right-2 z-10">
-        <button
-          onClick={() => setIsLegendOpen(!isLegendOpen)}
-          className="bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 w-7 h-7 flex items-center justify-center transition-colors"
-          title="Map Legend"
-          aria-label="Toggle map legend"
-        >
-          <HelpCircle className="w-4 h-4 text-gray-700" />
-        </button>
-      </div>
+      {showLegend && (
+        <>
+          <div className="absolute bottom-6 right-2 z-10">
+            <button
+              onClick={() => setIsLegendOpen(!isLegendOpen)}
+              className="bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 w-7 h-7 flex items-center justify-center transition-colors"
+              title="Map Legend"
+              aria-label="Toggle map legend"
+            >
+              <HelpCircle className="w-4 h-4 text-gray-700" />
+            </button>
+          </div>
 
-      {/* Legend Panel - Slides from bottom */}
-      <div
-        className={`absolute bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg transition-transform duration-300 ease-in-out ${
-          isLegendOpen ? 'translate-y-0' : 'translate-y-full'
-        }`}
-        style={{ maxHeight: '50%' }}
-      >
+          {/* Legend Panel - Slides from bottom */}
+          <div
+            className={`absolute bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg transition-transform duration-300 ease-in-out ${
+              isLegendOpen ? 'translate-y-0' : 'translate-y-full'
+            }`}
+            style={{ maxHeight: '50%' }}
+          >
         <div className="p-4 overflow-y-auto" style={{ maxHeight: '50vh' }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-800">Map Legend</h3>
@@ -468,7 +471,9 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData }) {
             </div>
           </div>
         </div>
-      </div>
+          </div>
+        </>
+      )}
     </Map>
   )
 }
