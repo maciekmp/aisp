@@ -32,7 +32,7 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
   )
 }
 
-export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
+export function MapView(props?: { base?: MarkerData; drone?: MarkerData }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -472,5 +472,4 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
     </Map>
   )
 }
-
 

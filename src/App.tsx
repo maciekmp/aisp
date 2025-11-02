@@ -6,7 +6,7 @@ import { VideoSection } from '@/components/VideoSection'
 import { NavButton } from '@/components/NavButton'
 import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
-import { FactoryMap, MarkerIcon } from '@/components/FactoryMap'
+import { MapView, MarkerIcon } from '@/components/MapView'
 import bbox from '@turf/bbox'
 import factoryPolygon from './tesla.json'
 import type { Feature, Polygon } from 'geojson'
@@ -208,7 +208,7 @@ function App() {
         </div>
       </nav>
       <div className="flex-1 relative">
-        <FactoryMap base={base} drone={drone} />
+        <MapView base={base} drone={drone} />
         {mode === 'manual' && (
           <div className="absolute left-2 bottom-2 select-none">
             <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
