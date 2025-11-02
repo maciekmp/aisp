@@ -5,9 +5,16 @@ import { Layers, HelpCircle, X } from 'lucide-react'
 import controlledAreaPolygon from '../tesla.json'
 import bbox from '@turf/bbox'
 import type { Feature, Polygon, LineString, Point, FeatureCollection } from 'geojson'
+import type { MarkerData } from '@/types'
+import { MAP_CONFIG, DRONE_TRACE } from '@/constants'
 
-type MarkerData = { longitude: number; latitude: number; headingDegrees?: number }
-
+/**
+ * Renders a marker icon with directional arrow indicator
+ * @param color - Fill color for the marker circle and arrow
+ * @param strokeColor - Stroke color for the marker outline
+ * @param headingDegrees - Heading angle in degrees (0-360, where 0 is north)
+ * @param size - Icon size in pixels (default: 64)
+ */
 export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { color: string; strokeColor: string; headingDegrees: number; size?: number }) {
   // Scale based on size parameter
   const scale = size / 64
@@ -32,6 +39,14 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
   )
 }
 
+/**
+ * Interactive map view component with drone tracking, waypoints, and mission visualization
+ * @param props - Map view configuration
+ * @param props.base - Base station marker position and heading
+ * @param props.drone - Drone marker position and heading
+ * @param props.showLegend - Whether to show the map legend (default: true)
+ * @param props.onClick - Callback when map is clicked (receives lng/lat coordinates)
+ */
 export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -72,7 +87,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
       initialViewState: {
         longitude: (minLng + maxLng) / 2,
         latitude: (minLat + maxLat) / 2,
-        zoom: 14
+        zoom: MAP_CONFIG.DEFAULT_ZOOM
       },
       controlledAreaFeature: feature
     }
@@ -150,9 +165,13 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
           return [newPoint]
         }
         const lastPoint = prev[prev.length - 1]
-        if (Math.abs(lastPoint[0] - newPoint[0]) > 0.00001 ||
-            Math.abs(lastPoint[1] - newPoint[1]) > 0.00001) {
-          return [...prev, newPoint]
+        if (Math.abs(lastPoint[0] - newPoint[0]) > DRONE_TRACE.MIN_DISTANCE_THRESHOLD ||
+            Math.abs(lastPoint[1] - newPoint[1]) > DRONE_TRACE.MIN_DISTANCE_THRESHOLD) {
+          const updated = [...prev, newPoint]
+          // Limit trace to max points, keeping the most recent
+          return updated.length > DRONE_TRACE.MAX_TRACE_POINTS 
+            ? updated.slice(-DRONE_TRACE.MAX_TRACE_POINTS)
+            : updated
         }
         return prev
       })
@@ -209,7 +228,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
       pitchWithRotate={false}
       touchPitch={false}
       onLoad={() => {
-        mapRef.current?.fitBounds(bounds, { padding: 40, duration: 800 })
+        mapRef.current?.fitBounds(bounds, { padding: MAP_CONFIG.BOUNDS_PADDING, duration: MAP_CONFIG.BOUNDS_ANIMATION_DURATION })
       }}
       onClick={props?.onClick}
     >

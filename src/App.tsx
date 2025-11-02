@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import './App.css'
 import { Rocket, MapPin, AlertTriangle, Drone, Archive } from 'lucide-react'
 import { NavButton } from '@/components/NavButton'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Dashboard } from '@/pages/Dashboard'
 import { MissionPlanner } from '@/pages/MissionPlanner'
 import { AlertCenter } from '@/pages/AlertCenter'
@@ -60,13 +61,15 @@ function App() {
       </nav>
       
       <div className="flex-1 flex">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/mission-planner" element={<MissionPlanner />} />
-          <Route path="/alert-center" element={<AlertCenter />} />
-          <Route path="/fleet" element={<FleetManagement />} />
-          <Route path="/archive" element={<ArchivePage />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/mission-planner" element={<MissionPlanner />} />
+            <Route path="/alert-center" element={<AlertCenter />} />
+            <Route path="/fleet" element={<FleetManagement />} />
+            <Route path="/archive" element={<ArchivePage />} />
+          </Routes>
+        </ErrorBoundary>
       </div>
     </div>
   )

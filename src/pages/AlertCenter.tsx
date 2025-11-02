@@ -1,17 +1,8 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Image, Video, FileText, Filter, X } from 'lucide-react'
-
-type Alert = {
-  id: string
-  timestamp: number
-  type: 'security' | 'fire' | 'intrusion' | 'equipment'
-  status: 'active' | 'resolved' | 'investigating'
-  location: { latitude: number; longitude: number }
-  description: string
-  images?: string[]
-  videos?: string[]
-}
+import type { Alert } from '@/types'
+import { UI_CONFIG } from '@/constants'
 
 const mockAlerts: Alert[] = [
   {
@@ -84,7 +75,7 @@ export function AlertCenter() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('pl-PL')
+    return new Date(timestamp).toLocaleString(UI_CONFIG.DEFAULT_LOCALE)
   }
 
   return (

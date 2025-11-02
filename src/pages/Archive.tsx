@@ -2,21 +2,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArchiveIcon, Filter, FileText, Image, Video, Download, X } from 'lucide-react'
 import { OperationalLog } from '@/components/OperationalLog'
-
-type MissionStatus = 'completed' | 'failed' | 'cancelled'
-
-type Mission = {
-  id: string
-  name: string
-  startTime: number
-  endTime?: number
-  status: MissionStatus
-  waypoints: number
-  duration?: number
-  images?: number
-  videos?: number
-  logs?: boolean
-}
+import type { Mission, MissionStatus } from '@/types'
+import { UI_CONFIG } from '@/constants'
 
 const mockMissions: Mission[] = [
   {
@@ -88,7 +75,7 @@ export function Archive() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('pl-PL')
+    return new Date(timestamp).toLocaleString(UI_CONFIG.DEFAULT_LOCALE)
   }
 
   const formatDuration = (seconds?: number) => {

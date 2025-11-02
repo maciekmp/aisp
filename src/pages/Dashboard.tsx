@@ -6,10 +6,15 @@ import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
 import { MapView, MarkerIcon } from '@/components/MapView'
 import { OperationalLog } from '@/components/OperationalLog'
-import bbox from '@turf/bbox'
 import factoryPolygon from '../tesla.json'
 import type { Feature, Polygon } from 'geojson'
+import { DRONE_PHYSICS, GEO_CONVERSION } from '@/constants'
+import { calculateMapBounds } from '@/utils/map'
 
+/**
+ * Main dashboard component for mission control
+ * Displays real-time drone telemetry, map visualization, video feeds, and mission status
+ */
 export function Dashboard() {
   const [mode, setMode] = useState<'manual' | 'auto'>('auto')
   const [speedMps, setSpeedMps] = useState(0)
@@ -17,11 +22,7 @@ export function Dashboard() {
 
   // Compute factory bounds and initial center
   const { bounds, center } = useMemo(() => {
-    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as unknown as Feature<Polygon>)
-    return {
-      bounds: { minLng, minLat, maxLng, maxLat },
-      center: { longitude: (minLng + maxLng) / 2, latitude: (minLat + maxLat) / 2 }
-    }
+    return calculateMapBounds(factoryPolygon as unknown as Feature<Polygon>)
   }, [])
 
   // Drone state exposed to map
@@ -66,7 +67,12 @@ export function Dashboard() {
     }
   }, [mode])
 
-  // Physics loop with simple inertia
+  /**
+   * Physics simulation loop for drone movement
+   * Implements simple inertia-based physics with velocity, acceleration, and drag
+   * Supports both manual (keyboard controlled) and automatic (self-navigating) modes
+   * In auto mode, drone bounces off boundaries; in manual mode, it's clamped
+   */
   useEffect(() => {
     let raf = 0
     let last = performance.now()
@@ -77,45 +83,40 @@ export function Dashboard() {
     let velX = 0
     let velY = 0
 
-    const maxSpeed = 0.00002 // deg/frame scaled
-    const accel = 0.00006
-    const drag = 0.90
-    const yawRateDegPerFrame = 2.0
-
     const loop = (t: number) => {
-      const dt = Math.min(0.05, (t - last) / 1000) // seconds
+      const dt = Math.min(DRONE_PHYSICS.MAX_DELTA_TIME, (t - last) / 1000) // seconds
       last = t
 
       // Scale per-frame constants to dt ~ 60fps baseline
-      const scale = dt * 60
+      const scale = dt * DRONE_PHYSICS.FPS_BASELINE
 
       // Control mode: manual uses keys, auto ignores keys and moves forward with bounce
       if (mode === 'manual') {
-        if (keys.current.left) yaw -= (yawRateDegPerFrame * Math.PI / 180) * scale
-        if (keys.current.right) yaw += (yawRateDegPerFrame * Math.PI / 180) * scale
+        if (keys.current.left) yaw -= (DRONE_PHYSICS.YAW_RATE_DEG_PER_FRAME * Math.PI / 180) * scale
+        if (keys.current.right) yaw += (DRONE_PHYSICS.YAW_RATE_DEG_PER_FRAME * Math.PI / 180) * scale
       }
       let thrust = 0
       if (mode === 'manual') {
-        if (keys.current.up) thrust += accel
-        if (keys.current.down) thrust -= accel
+        if (keys.current.up) thrust += DRONE_PHYSICS.ACCELERATION
+        if (keys.current.down) thrust -= DRONE_PHYSICS.ACCELERATION
       } else {
         // In auto, gently maintain a cruising speed forward
-        const desiredSpeed = maxSpeed * 0.8
+        const desiredSpeed = DRONE_PHYSICS.MAX_SPEED * DRONE_PHYSICS.AUTO_SPEED_MULTIPLIER
         const currentSpeed = Math.hypot(velX, velY)
         const speedError = desiredSpeed - currentSpeed
-        thrust = Math.max(-accel, Math.min(accel, speedError * 0.5))
+        thrust = Math.max(-DRONE_PHYSICS.ACCELERATION, Math.min(DRONE_PHYSICS.ACCELERATION, speedError * DRONE_PHYSICS.AUTO_SPEED_CORRECTION))
       }
 
       // Map forward so that heading 0° is north (latitude+)
       const ax = Math.sin(yaw) * thrust
       const ay = Math.cos(yaw) * thrust
 
-      velX = (velX + ax * scale) * drag
-      velY = (velY + ay * scale) * drag
+      velX = (velX + ax * scale) * DRONE_PHYSICS.DRAG
+      velY = (velY + ay * scale) * DRONE_PHYSICS.DRAG
 
       const speed = Math.hypot(velX, velY)
-      if (speed > maxSpeed) {
-        const s = maxSpeed / speed
+      if (speed > DRONE_PHYSICS.MAX_SPEED) {
+        const s = DRONE_PHYSICS.MAX_SPEED / speed
         velX *= s
         velY *= s
       }
@@ -123,21 +124,24 @@ export function Dashboard() {
       posLng += velX
       posLat += velY
 
-      // Compute instantaneous speed in m/s from degree displacement over dt
-      const metersPerDegLat = 111320
-      const metersPerDegLon = 111320 * Math.cos(posLat * Math.PI / 180)
+      /**
+       * Convert velocity from degrees per second to meters per second
+       * Accounts for latitude-dependent longitude distance (meters per degree varies by latitude)
+       * Uses approximation: 1 degree latitude ≈ 111,320 meters
+       */
+      const metersPerDegLat = GEO_CONVERSION.METERS_PER_DEG_LAT
+      const metersPerDegLon = GEO_CONVERSION.METERS_PER_DEG_LAT * Math.cos(posLat * Math.PI / 180)
       const dxMeters = velX * metersPerDegLon
       const dyMeters = velY * metersPerDegLat
       const instSpeed = dt > 0 ? Math.hypot(dxMeters, dyMeters) / dt : 0
       setSpeedMps(instSpeed)
 
       // Bounce on bounds in auto; clamp in manual
-      const margin = 1e-9
       if (mode === 'auto') {
-        if (posLng <= bounds.minLng + margin && velX < 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
-        if (posLng >= bounds.maxLng - margin && velX > 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
-        if (posLat <= bounds.minLat + margin && velY < 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
-        if (posLat >= bounds.maxLat - margin && velY > 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
+        if (posLng <= bounds.minLng + DRONE_PHYSICS.BOUNDARY_MARGIN && velX < 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
+        if (posLng >= bounds.maxLng - DRONE_PHYSICS.BOUNDARY_MARGIN && velX > 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
+        if (posLat <= bounds.minLat + DRONE_PHYSICS.BOUNDARY_MARGIN && velY < 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
+        if (posLat >= bounds.maxLat - DRONE_PHYSICS.BOUNDARY_MARGIN && velY > 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
         posLng = Math.min(bounds.maxLng, Math.max(bounds.minLng, posLng))
         posLat = Math.min(bounds.maxLat, Math.max(bounds.minLat, posLat))
       } else {

@@ -1,40 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { MessageSquare, Send } from 'lucide-react'
+import type { LogEntry } from '@/types'
+import { LOG_CONFIG } from '@/constants'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
-export type LogEntry = {
-  id: string
-  timestamp: number
-  message: string
-}
-
+/**
+ * Props for OperationalLog component
+ */
 interface OperationalLogProps {
+  /** Mission ID for scoped log storage (default: 'current') */
   missionId?: string
+  /** Callback when a new log entry is added */
   onLogAdded?: (entry: LogEntry) => void
 }
 
+/**
+ * Operational log component for mission notes and comments
+ * Persists logs to localStorage with automatic debouncing
+ * Maintains a maximum of 50 entries per mission
+ */
 export function OperationalLog({ missionId = 'current', onLogAdded }: OperationalLogProps) {
   const [comment, setComment] = useState('')
-  const [logs, setLogs] = useState<LogEntry[]>([])
-
-  // Load logs from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(`operational_logs_${missionId}`)
-    if (stored) {
-      try {
-        setLogs(JSON.parse(stored))
-      } catch (e) {
-        console.error('Failed to parse stored logs:', e)
-      }
-    }
-  }, [missionId])
-
-  // Save logs to localStorage whenever they change
-  useEffect(() => {
-    if (logs.length > 0) {
-      localStorage.setItem(`operational_logs_${missionId}`, JSON.stringify(logs))
-    }
-  }, [logs, missionId])
+  const [logs, setLogs] = useLocalStorage<LogEntry[]>(`operational_logs_${missionId}`, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,7 +34,7 @@ export function OperationalLog({ missionId = 'current', onLogAdded }: Operationa
       message: comment.trim()
     }
 
-    const updatedLogs = [newEntry, ...logs].slice(0, 50) // Keep last 50 entries
+    const updatedLogs = [newEntry, ...logs].slice(0, LOG_CONFIG.MAX_LOG_ENTRIES)
     setLogs(updatedLogs)
     setComment('')
     onLogAdded?.(newEntry)
@@ -69,7 +57,7 @@ export function OperationalLog({ missionId = 'current', onLogAdded }: Operationa
             onChange={(e) => setComment(e.target.value)}
             placeholder="Add comment..."
             className="flex-1 text-[10px] px-2 py-1 border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-            maxLength={200}
+            maxLength={LOG_CONFIG.MAX_MESSAGE_LENGTH}
           />
           <Button
             type="submit"

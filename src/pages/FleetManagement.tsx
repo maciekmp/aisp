@@ -1,30 +1,8 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Drone, HardDrive, Activity, FileText, AlertCircle, CheckCircle } from 'lucide-react'
-
-type DroneStatus = 'active' | 'mission' | 'docked' | 'error'
-type DockStatus = 'operational' | 'charging' | 'maintenance' | 'error'
-
-type DroneItem = {
-  id: string
-  name: string
-  status: DroneStatus
-  battery: number
-  location?: { latitude: number; longitude: number }
-  currentMission?: string
-  lastUpdate: number
-}
-
-type DockStation = {
-  id: string
-  name: string
-  status: DockStatus
-  droneCount: number
-  capacity: number
-  temperature: number
-  humidity: number
-  lastUpdate: number
-}
+import type { DroneItem, DockStation } from '@/types'
+import { UI_CONFIG } from '@/constants'
 
 const mockDrones: DroneItem[] = [
   {
@@ -138,7 +116,7 @@ export function FleetManagement() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('pl-PL')
+    return new Date(timestamp).toLocaleString(UI_CONFIG.DEFAULT_LOCALE)
   }
 
   return (

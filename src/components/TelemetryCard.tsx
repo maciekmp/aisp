@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react'
+import { memo, type ReactElement } from 'react'
 
 interface TelemetryCardProps {
   icon: ReactElement
@@ -7,7 +7,7 @@ interface TelemetryCardProps {
   valueColor?: string
 }
 
-export function TelemetryCard({ icon, label, value, valueColor = 'text-gray-900' }: TelemetryCardProps) {
+export const TelemetryCard = memo(function TelemetryCard({ icon, label, value, valueColor = 'text-gray-900' }: TelemetryCardProps) {
   return (
     <div className="bg-gray-50 p-1 rounded flex flex-col min-w-0">
       <div className="flex items-center gap-1 justify-center mb-0.5 min-w-0">
@@ -17,5 +17,5 @@ export function TelemetryCard({ icon, label, value, valueColor = 'text-gray-900'
       <div className={`text-xs font-semibold ${valueColor} text-center`}>{value}</div>
     </div>
   )
-}
+})
 

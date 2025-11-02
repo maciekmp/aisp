@@ -1,50 +1,28 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { MapView } from '@/components/MapView'
 import { Button } from '@/components/ui/button'
 import { Trash2, Calendar, Route } from 'lucide-react'
-import bbox from '@turf/bbox'
 import factoryPolygon from '../tesla.json'
 import type { Feature, Polygon } from 'geojson'
+import type { Waypoint } from '@/types'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { calculateMapBounds } from '@/utils/map'
 
-type Waypoint = {
-  id: string
-  longitude: number
-  latitude: number
-  name: string
-  order: number
-}
-
+/**
+ * Mission planner component for creating and managing flight routes
+ * Allows adding waypoints by clicking on the map and organizing them into a mission timeline
+ * Persists waypoints to localStorage
+ */
 export function MissionPlanner() {
-  const [waypoints, setWaypoints] = useState<Waypoint[]>([])
+  const [waypoints, setWaypoints] = useLocalStorage<Waypoint[]>('mission_waypoints', [])
   const [activeTab, setActiveTab] = useState<'route' | 'timeline'>('route')
   const [editingWaypoint, setEditingWaypoint] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
 
   const { center } = useMemo(() => {
-    const [minLng, minLat, maxLng, maxLat] = bbox(factoryPolygon as unknown as Feature<Polygon>)
-    return {
-      center: { longitude: (minLng + maxLng) / 2, latitude: (minLat + maxLat) / 2 }
-    }
+    const { center: mapCenter } = calculateMapBounds(factoryPolygon as unknown as Feature<Polygon>)
+    return { center: mapCenter }
   }, [])
-
-  // Load waypoints from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('mission_waypoints')
-    if (stored) {
-      try {
-        setWaypoints(JSON.parse(stored))
-      } catch (e) {
-        console.error('Failed to parse stored waypoints:', e)
-      }
-    }
-  }, [])
-
-  // Save waypoints to localStorage
-  useEffect(() => {
-    if (waypoints.length > 0) {
-      localStorage.setItem('mission_waypoints', JSON.stringify(waypoints))
-    }
-  }, [waypoints])
 
   const handleMapClick = (event: { lngLat: { lng: number; lat: number } }) => {
     const newWaypoint: Waypoint = {

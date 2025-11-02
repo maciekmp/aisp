@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react'
+import { memo, type ReactElement } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 interface NavButtonProps {
@@ -7,7 +7,7 @@ interface NavButtonProps {
   icon: ReactElement
 }
 
-export function NavButton({ to, label, icon }: NavButtonProps) {
+export const NavButton = memo(function NavButton({ to, label, icon }: NavButtonProps) {
   const location = useLocation()
   const isActive = location.pathname === to || (to === '/' && location.pathname === '/')
 
@@ -29,5 +29,5 @@ export function NavButton({ to, label, icon }: NavButtonProps) {
       </div>
     </div>
   )
-}
+})
 

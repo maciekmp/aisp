@@ -1,16 +1,31 @@
 import { Expand, Minimize2, Camera } from 'lucide-react'
 
+/**
+ * Props for VideoSection component
+ */
 interface VideoSectionProps {
+  /** Video section title */
   title: string
+  /** Video source URL */
   src: string
+  /** Optional subtitle text */
   subtitle?: string
+  /** CSS filter to apply to video (e.g., for thermal camera effect) */
   filter?: string
+  /** Callback when expand button is clicked */
   onExpand?: () => void
+  /** Whether the video is currently in expanded/fullscreen mode */
   isExpanded?: boolean
+  /** Callback when photo capture button is clicked */
   onTakePhoto?: () => void
+  /** Callback when save clip button is clicked */
   onSaveClip?: () => void
 }
 
+/**
+ * Video display component with controls for expanding, photo capture, and clip saving
+ * Supports both RGB and thermal camera feeds with optional CSS filters
+ */
 export function VideoSection({ title, src, subtitle, filter, onExpand, isExpanded, onTakePhoto, onSaveClip }: VideoSectionProps) {
   return (
     <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
