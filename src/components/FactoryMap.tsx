@@ -77,11 +77,14 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
       mapStyle="mapbox://styles/mapbox/light-v11"
       mapboxAccessToken={mapboxToken}
       style={{ width: '100%', height: '100%' }}
+      dragRotate={false}
+      pitchWithRotate={false}
+      touchPitch={false}
       onLoad={() => {
         mapRef.current?.fitBounds(bounds, { padding: 40, duration: 800 })
       }}
     >
-      <NavigationControl position="top-right" />
+      <NavigationControl position="top-right" showCompass={false} />
       <Source id="factory" type="geojson" data={factoryPolygon as unknown as Feature<Polygon>}>
         <Layer
           id="factory-fill"
