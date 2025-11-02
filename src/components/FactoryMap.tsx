@@ -243,7 +243,14 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
         />
       </Source>
 
-      {/* Mission Path Layer */}
+      {/* Base station marker (rendered first, so drone appears above it) */}
+      <Marker longitude={baseLon} latitude={baseLat} anchor="center">
+        <div title="Base Station" className="drop-shadow">
+          <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={baseHeading} />
+        </div>
+      </Marker>
+
+      {/* Mission Path Layer (canvas layer - rendered below markers) */}
       <Source id="missionPath" type="geojson" data={missionPath}>
         <Layer
           id="missionPath-line"
@@ -254,14 +261,14 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
             'line-cap': 'round'
           }}
           paint={{ 
-            'line-color': '#10b981',
+            'line-color': '#6b7280',
             'line-width': 3,
             'line-dasharray': [2, 2]
           }}
         />
       </Source>
 
-      {/* Alerts Layer */}
+      {/* Alerts Layer (canvas layer) */}
       <Source id="alerts" type="geojson" data={alerts}>
         <Layer
           id="alerts-circle"
@@ -284,17 +291,10 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
         />
       </Source>
 
-      {/* Base station marker (centered at coordinate) */}
-      <Marker longitude={baseLon} latitude={baseLat} anchor="center">
-        <div title="Base Station" className="drop-shadow">
-          <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={baseHeading} />
-        </div>
-      </Marker>
-
-      {/* Drone position marker (slightly offset from center) */}
+      {/* Drone position marker (rendered last, so it appears above base and path) */}
       <Marker longitude={droneLon} latitude={droneLat} anchor="center">
         <div title="Drone (current)" className="drop-shadow">
-          <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={droneHeading} />
+          <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={droneHeading} />
         </div>
       </Marker>
 
@@ -336,7 +336,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 flex items-center justify-center">
-                    <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={0} />
+                    <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={0} />
                   </div>
                   <div>
                     <div className="text-sm font-medium text-gray-800">Base Station</div>
@@ -345,7 +345,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12 flex items-center justify-center">
-                    <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={45} />
+                    <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={45} />
                   </div>
                   <div>
                     <div className="text-sm font-medium text-gray-800">Drone</div>
@@ -367,7 +367,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-1 bg-green-500" style={{ backgroundImage: 'repeating-linear-gradient(to right, #10b981 0, #10b981 4px, transparent 4px, transparent 8px)' }}></div>
+                  <div className="w-8 h-1 bg-gray-500" style={{ backgroundImage: 'repeating-linear-gradient(to right, #6b7280 0, #6b7280 4px, transparent 4px, transparent 8px)' }}></div>
                   <div>
                     <div className="text-sm font-medium text-gray-800">Mission Path</div>
                     <div className="text-xs text-gray-500">Planned flight route</div>
