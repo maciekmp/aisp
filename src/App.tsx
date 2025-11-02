@@ -6,7 +6,7 @@ import { VideoSection } from '@/components/VideoSection'
 import { NavButton } from '@/components/NavButton'
 import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
-import { FactoryMap } from '@/components/FactoryMap'
+import { FactoryMap, MarkerIcon } from '@/components/FactoryMap'
 import bbox from '@turf/bbox'
 import factoryPolygon from './tesla.json'
 import type { Feature, Polygon } from 'geojson'
@@ -285,7 +285,10 @@ function App() {
             <div className="grid grid-cols-3 gap-1">
               {/* Drone Data Column */}
               <div className="col-span-1 space-y-1">
-                <div className="px-1">
+                <div className="px-1 flex items-center gap-1.5">
+                  <div className="drop-shadow">
+                    <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={drone.headingDegrees} size={20} />
+                  </div>
                   <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">Drone Data</h4>
                 </div>
                 <div className="grid grid-cols-2 gap-1">
@@ -306,7 +309,10 @@ function App() {
 
               {/* Docking Station Column */}
               <div className=" col-span-2 space-y-1">
-                <div className="px-1">
+                <div className="px-1 flex items-center gap-1.5">
+                  <div className="drop-shadow">
+                    <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={0} size={20} />
+                  </div>
                   <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">Docking Station</h4>
                 </div>
                 <div className="grid grid-cols-4 gap-1">

@@ -8,6 +8,30 @@ import type { Feature, Polygon, LineString, Point, FeatureCollection } from 'geo
 
 type MarkerData = { longitude: number; latitude: number; headingDegrees?: number }
 
+export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { color: string; strokeColor: string; headingDegrees: number; size?: number }) {
+  // Scale based on size parameter
+  const scale = size / 64
+  const r = 14 * scale // circle radius (px)
+  const gap = 4 * scale // gap between circle and arrow (px)
+  const triH = 16 * scale // arrow height
+  const triW = 14 * scale // arrow width
+  const cx = size / 2
+  const cy = size / 2
+  // Triangle points in local coords where (0,0) is circle center; pointing up initially
+  const baseY = -(r + gap)
+  const tipY = baseY - triH
+  const halfW = triW / 2
+  const points = `${0},${tipY} ${halfW},${baseY} ${-halfW},${baseY}`
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+      <g transform={`translate(${cx}, ${cy}) rotate(${headingDegrees})`}>
+        <polygon points={points} fill={color} stroke={strokeColor} strokeWidth={3 * scale} strokeLinejoin="round" />
+        <circle cx={0} cy={0} r={r} fill={color} stroke={strokeColor} strokeWidth={3 * scale} />
+      </g>
+    </svg>
+  )
+}
+
 export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -16,7 +40,9 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
   const [satelliteView, setSatelliteView] = useState(false)
   const [showControlledArea, setShowControlledArea] = useState(true)
   const [showMissionPath, setShowMissionPath] = useState(true)
+  const [showDroneTrace, setShowDroneTrace] = useState(true)
   const [showAlerts, setShowAlerts] = useState(true)
+  const [droneTrace, setDroneTrace] = useState<[number, number][]>([])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -113,30 +139,47 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
   const droneLat = props?.drone?.latitude ?? (initialViewState.latitude + 0.001)
   const droneHeading = props?.drone?.headingDegrees ?? 45
 
-  function MarkerIcon({ color, strokeColor, headingDegrees }: { color: string; strokeColor: string; headingDegrees: number }) {
-    // Circle radius and arrow geometry
-    const r = 14 // circle radius (px)
-    const gap = 4 // gap between circle and arrow (px)
-    const triH = 16 // arrow height
-    const triW = 14 // arrow width
-    // Canvas size big enough to contain rotated arrow
-    const size = 64
-    const cx = size / 2
-    const cy = size / 2
-    // Triangle points in local coords where (0,0) is circle center; pointing up initially
-    const baseY = -(r + gap)
-    const tipY = baseY - triH
-    const halfW = triW / 2
-    const points = `${0},${tipY} ${halfW},${baseY} ${-halfW},${baseY}`
-    return (
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
-        <g transform={`translate(${cx}, ${cy}) rotate(${headingDegrees})`}>
-          <polygon points={points} fill={color} stroke={strokeColor} strokeWidth={3} strokeLinejoin="round" />
-          <circle cx={0} cy={0} r={r} fill={color} stroke={strokeColor} strokeWidth={3} />
-        </g>
-      </svg>
-    )
-  }
+  // Track drone trace path
+  useEffect(() => {
+    if (props?.drone) {
+      setDroneTrace((prev) => {
+        const newPoint: [number, number] = [props.drone!.longitude, props.drone!.latitude]
+        // Initialize with first point or add if moved significantly (avoid duplicate points)
+        if (prev.length === 0) {
+          return [newPoint]
+        }
+        const lastPoint = prev[prev.length - 1]
+        if (Math.abs(lastPoint[0] - newPoint[0]) > 0.00001 ||
+            Math.abs(lastPoint[1] - newPoint[1]) > 0.00001) {
+          return [...prev, newPoint]
+        }
+        return prev
+      })
+    }
+  }, [props?.drone?.longitude, props?.drone?.latitude])
+
+  // Drone trace as LineString
+  const droneTracePath = useMemo<FeatureCollection<LineString>>(() => {
+    if (droneTrace.length < 2) {
+      return {
+        type: 'FeatureCollection',
+        features: []
+      }
+    }
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: droneTrace
+          },
+          properties: {}
+        }
+      ]
+    }
+  }, [droneTrace])
 
   if (!mapboxToken) {
     return (
@@ -160,6 +203,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
       mapStyle={mapStyle}
       mapboxAccessToken={mapboxToken}
       style={{ width: '100%', height: '100%' }}
+      keyboard={false}
       dragRotate={false}
       pitchWithRotate={false}
       touchPitch={false}
@@ -216,6 +260,15 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
               <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={showDroneTrace}
+                  onChange={(e) => setShowDroneTrace(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded"
+                />
+                <span className="text-sm text-gray-700">Drone Trace</span>
+              </label>
+              <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={showAlerts}
                   onChange={(e) => setShowAlerts(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded"
@@ -250,7 +303,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
         </div>
       </Marker>
 
-      {/* Mission Path Layer (canvas layer - rendered below markers) */}
+      {/* Mission Path Layer (planned route - canvas layer) */}
       <Source id="missionPath" type="geojson" data={missionPath}>
         <Layer
           id="missionPath-line"
@@ -264,6 +317,23 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
             'line-color': '#6b7280',
             'line-width': 3,
             'line-dasharray': [2, 2]
+          }}
+        />
+      </Source>
+
+      {/* Drone Trace Layer (actual path traveled - green line) */}
+      <Source id="droneTrace" type="geojson" data={droneTracePath}>
+        <Layer
+          id="droneTrace-line"
+          type="line"
+          layout={{ 
+            visibility: showDroneTrace ? 'visible' : 'none',
+            'line-join': 'round',
+            'line-cap': 'round'
+          }}
+          paint={{ 
+            'line-color': '#10b981',
+            'line-width': 2
           }}
         />
       </Source>
@@ -335,7 +405,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
               <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Markers</h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 flex items-center justify-center">
+                  <div className="relative w-12 h-12 flex items-center justify-center drop-shadow">
                     <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={0} />
                   </div>
                   <div>
@@ -344,7 +414,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 flex items-center justify-center">
+                  <div className="relative w-12 h-12 flex items-center justify-center drop-shadow">
                     <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={45} />
                   </div>
                   <div>
@@ -371,6 +441,13 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
                   <div>
                     <div className="text-sm font-medium text-gray-800">Mission Path</div>
                     <div className="text-xs text-gray-500">Planned flight route</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-1 bg-green-500"></div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Drone Trace</div>
+                    <div className="text-xs text-gray-500">Actual path traveled</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
