@@ -219,7 +219,7 @@ export function AlertCenter() {
               <div>
                 <div className="text-sm text-gray-500 mb-2">Images</div>
                 <div className="grid grid-cols-2 gap-2">
-                  {selectedAlert.images.map((img, idx) => (
+                  {selectedAlert.images.map((_, idx) => (
                     <div key={idx} className="aspect-video bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
                       <Image className="w-8 h-8 text-gray-400" />
                     </div>
