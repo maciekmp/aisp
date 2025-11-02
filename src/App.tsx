@@ -7,6 +7,7 @@ import { NavButton } from '@/components/NavButton'
 import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
 import { MapView, MarkerIcon } from '@/components/MapView'
+import { OperationalLog } from '@/components/OperationalLog'
 import bbox from '@turf/bbox'
 import factoryPolygon from './tesla.json'
 import type { Feature, Polygon } from 'geojson'
@@ -409,21 +410,27 @@ function App() {
 
             {/* Mission Status (auto) or Instructions (manual) */}
             {mode === 'auto' ? (
-              <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
-                <div className="flex items-center gap-1 justify-between mb-0.5">
-                  <div className="text-[9px] text-gray-500 uppercase tracking-wide">Mission Status</div>
-                  <div className="text-[9px] text-gray-500 uppercase tracking-wide">In Progress (43%)</div>
+              <>
+                <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
+                  <div className="flex items-center gap-1 justify-between mb-0.5">
+                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">Mission Status</div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">In Progress (43%)</div>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded">
+                    <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
+                  </div>
                 </div>
-                <div className="h-2 bg-gray-200 rounded">
-                  <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
-                </div>
-              </div>
+                <OperationalLog missionId="current" />
+              </>
             ) : (
-              <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
-                <div className="text-[9px] text-gray-600 text-center">
-                  Use Arrow keys to steer. Switch to Auto with the Control button.
+              <>
+                <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
+                  <div className="text-[9px] text-gray-600 text-center">
+                    Use Arrow keys to steer. Switch to Auto with the Control button.
+                  </div>
                 </div>
-              </div>
+                <OperationalLog missionId="current" />
+              </>
             )}
 
             {/* Control Buttons - Grouped & Larger */}
