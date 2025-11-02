@@ -32,7 +32,7 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
   )
 }
 
-export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean }) {
+export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -211,6 +211,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
       onLoad={() => {
         mapRef.current?.fitBounds(bounds, { padding: 40, duration: 800 })
       }}
+      onClick={props?.onClick}
     >
       <NavigationControl position="top-right" showCompass={false} />
       
