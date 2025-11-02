@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 import './App.css'
-import { Battery, Gauge, Navigation, Signal, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass } from 'lucide-react'
+import { Battery, Mountain, Navigation, Radio, Satellite, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { VideoSection } from '@/components/VideoSection'
 import { NavButton } from '@/components/NavButton'
@@ -338,10 +338,19 @@ function App() {
           <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
             <h3 className="text-xs font-semibold text-gray-700">Telemetry</h3>
             <div className="flex items-center gap-3">
+              <TelemetryHeaderItem icon={<Navigation className="w-3.5 h-3.5 text-gray-600" />} value={`${speedMps.toFixed(1)} m/s`} valueClassName="w-12 inline-block text-right" />
+              <TelemetryHeaderItem icon={<Mountain className="w-3.5 h-3.5 text-gray-600" />} value="42.5m" />
+              <TelemetryHeaderItem icon={<Satellite className="w-3.5 h-3.5 text-gray-600" />} value="12" />
+              <div className="flex items-center gap-1">
+                <Radio className="w-3.5 h-3.5 text-gray-600" />
+                <div className="flex items-end gap-0.5 h-3">
+                  <div className="w-0.5 bg-gray-900 rounded-t" style={{ height: '25%' }}></div>
+                  <div className="w-0.5 bg-gray-900 rounded-t" style={{ height: '50%' }}></div>
+                  <div className="w-0.5 bg-gray-900 rounded-t" style={{ height: '75%' }}></div>
+                  <div className="w-0.5 bg-gray-900 rounded-t" style={{ height: '100%' }}></div>
+                </div>
+              </div>
               <TelemetryHeaderItem icon={<Battery className="w-3.5 h-3.5 text-gray-600" />} value="85%" />
-              <TelemetryHeaderItem icon={<Signal className="w-3.5 h-3.5 text-green-600" />} value="Strong" />
-              <TelemetryHeaderItem icon={<Navigation className="w-3.5 h-3.5 text-gray-600" />} value={`${speedMps.toFixed(1)} m/s`} />
-              <TelemetryHeaderItem icon={<Gauge className="w-3.5 h-3.5 text-gray-600" />} value="42.5m" />
             </div>
           </div>
           <div className="flex-1 p-2 flex flex-col gap-1.5">
