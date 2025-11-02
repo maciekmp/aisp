@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
 import Map, { NavigationControl, Source, Layer, Marker, type MapRef } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { Layers } from 'lucide-react'
+import { Layers, HelpCircle, X } from 'lucide-react'
 import controlledAreaPolygon from '../tesla.json'
 import bbox from '@turf/bbox'
 import type { Feature, Polygon, LineString, Point, FeatureCollection } from 'geojson'
@@ -12,6 +12,7 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isLegendOpen, setIsLegendOpen] = useState(false)
   const [satelliteView, setSatelliteView] = useState(false)
   const [showControlledArea, setShowControlledArea] = useState(true)
   const [showMissionPath, setShowMissionPath] = useState(true)
@@ -296,6 +297,101 @@ export function FactoryMap(props?: { base?: MarkerData; drone?: MarkerData }) {
           <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={droneHeading} />
         </div>
       </Marker>
+
+      {/* Help Button with Legend Panel */}
+      <div className="absolute bottom-6 right-2 z-10">
+        <button
+          onClick={() => setIsLegendOpen(!isLegendOpen)}
+          className="bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 w-7 h-7 flex items-center justify-center transition-colors"
+          title="Map Legend"
+          aria-label="Toggle map legend"
+        >
+          <HelpCircle className="w-4 h-4 text-gray-700" />
+        </button>
+      </div>
+
+      {/* Legend Panel - Slides from bottom */}
+      <div
+        className={`absolute bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg transition-transform duration-300 ease-in-out ${
+          isLegendOpen ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        style={{ maxHeight: '50%' }}
+      >
+        <div className="p-4 overflow-y-auto" style={{ maxHeight: '50vh' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Map Legend</h3>
+            <button
+              onClick={() => setIsLegendOpen(false)}
+              className="p-1 hover:bg-gray-100 rounded transition-colors"
+              aria-label="Close legend"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Markers */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Markers</h4>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 flex items-center justify-center">
+                    <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={0} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Base Station</div>
+                    <div className="text-xs text-gray-500">Fixed ground control point</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 flex items-center justify-center">
+                    <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={45} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Drone</div>
+                    <div className="text-xs text-gray-500">Current position and heading</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Layers */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Layers</h4>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded border-2 border-blue-600" style={{ backgroundColor: 'rgba(59, 130, 246, 0.25)' }}></div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Controlled Area</div>
+                    <div className="text-xs text-gray-500">Designated operation zone</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-1 bg-green-500" style={{ backgroundImage: 'repeating-linear-gradient(to right, #10b981 0, #10b981 4px, transparent 4px, transparent 8px)' }}></div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Mission Path</div>
+                    <div className="text-xs text-gray-500">Planned flight route</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white"></div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Alert (Error)</div>
+                    <div className="text-xs text-gray-500">Critical issues or restrictions</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full bg-orange-500 border-2 border-white"></div>
+                  <div>
+                    <div className="text-sm font-medium text-gray-800">Alert (Warning)</div>
+                    <div className="text-xs text-gray-500">Cautionary notifications</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </Map>
   )
 }
