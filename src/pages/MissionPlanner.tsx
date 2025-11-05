@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MapView } from '@/components/MapView'
 import { Button } from '@/components/ui/button'
 import { Trash2, Calendar, Route } from 'lucide-react'
@@ -14,6 +15,7 @@ import { calculateMapBounds } from '@/utils/map'
  * Persists waypoints to localStorage
  */
 export function MissionPlanner() {
+  const { t } = useTranslation()
   const [waypoints, setWaypoints] = useLocalStorage<Waypoint[]>('mission_waypoints', [])
   const [activeTab, setActiveTab] = useState<'route' | 'timeline'>('route')
   const [editingWaypoint, setEditingWaypoint] = useState<string | null>(null)
@@ -29,7 +31,7 @@ export function MissionPlanner() {
       id: Date.now().toString(),
       longitude: event.lngLat.lng,
       latitude: event.lngLat.lat,
-      name: `Waypoint ${waypoints.length + 1}`,
+      name: t('missionPlanner.waypointName', { number: waypoints.length + 1 }),
       order: waypoints.length + 1
     }
     setWaypoints([...waypoints, newWaypoint])
@@ -74,7 +76,7 @@ export function MissionPlanner() {
       {/* Sidebar */}
       <div className="w-[400px] bg-white border-l border-gray-200 flex flex-col">
         <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Mission Planner</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">{t('missionPlanner.title')}</h2>
           <div className="flex gap-2">
             <Button
               variant={activeTab === 'route' ? 'default' : 'outline'}
@@ -82,7 +84,7 @@ export function MissionPlanner() {
               className="flex-1"
             >
               <Route className="w-4 h-4 mr-2" />
-              Route
+              {t('missionPlanner.route')}
             </Button>
             <Button
               variant={activeTab === 'timeline' ? 'default' : 'outline'}
@@ -90,7 +92,7 @@ export function MissionPlanner() {
               className="flex-1"
             >
               <Calendar className="w-4 h-4 mr-2" />
-              Timeline
+              {t('missionPlanner.timeline')}
             </Button>
           </div>
         </div>
@@ -100,14 +102,14 @@ export function MissionPlanner() {
             <div className="space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <p className="text-sm text-blue-800">
-                  Click on the map to add waypoints. Drag markers to reposition.
+                  {t('missionPlanner.clickToAddWaypoints')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h3 className="font-semibold text-gray-700">Waypoints ({waypoints.length})</h3>
+                <h3 className="font-semibold text-gray-700">{t('missionPlanner.waypointsCount', { count: waypoints.length })}</h3>
                 {waypoints.length === 0 ? (
-                  <p className="text-sm text-gray-500">No waypoints added yet</p>
+                  <p className="text-sm text-gray-500">{t('missionPlanner.noWaypoints')}</p>
                 ) : (
                   <div className="space-y-2">
                     {waypoints
@@ -137,13 +139,13 @@ export function MissionPlanner() {
                                   className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
                                   autoFocus
                                 />
-                                <Button
-                                  size="sm"
-                                  onClick={handleSaveEdit}
-                                  variant="default"
-                                >
-                                  Save
-                                </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={handleSaveEdit}
+                                    variant="default"
+                                  >
+                                    {t('missionPlanner.save')}
+                                  </Button>
                               </div>
                             ) : (
                               <>
@@ -161,7 +163,7 @@ export function MissionPlanner() {
                                     variant="ghost"
                                     onClick={() => handleEditWaypoint(waypoint.id)}
                                   >
-                                    Edit
+                                    {t('common.edit')}
                                   </Button>
                                   <Button
                                     size="sm"
@@ -182,9 +184,9 @@ export function MissionPlanner() {
             </div>
           ) : (
             <div className="space-y-4">
-              <h3 className="font-semibold text-gray-700">Mission Timeline</h3>
+              <h3 className="font-semibold text-gray-700">{t('missionPlanner.missionTimeline')}</h3>
               {waypoints.length === 0 ? (
-                <p className="text-sm text-gray-500">Add waypoints to see mission timeline</p>
+                <p className="text-sm text-gray-500">{t('missionPlanner.addWaypointsForTimeline')}</p>
               ) : (
                 <div className="space-y-3">
                   {waypoints
@@ -202,10 +204,10 @@ export function MissionPlanner() {
                         <div className="flex-1 pb-4">
                           <div className="font-medium text-gray-900">{waypoint.name}</div>
                           <div className="text-xs text-gray-500 mt-1">
-                            Estimated arrival: {index * 5 + 10} minutes
+                            {t('missionPlanner.estimatedArrival', { minutes: index * 5 + 10 })}
                           </div>
                           <div className="text-xs text-gray-500">
-                            Actions: Navigate, Survey, Record
+                            {t('missionPlanner.actions')}
                           </div>
                         </div>
                       </div>
@@ -219,7 +221,7 @@ export function MissionPlanner() {
         {activeTab === 'route' && waypoints.length > 0 && (
           <div className="p-4 border-t border-gray-200">
             <Button className="w-full" variant="default">
-              Save Mission Route
+              {t('missionPlanner.saveMissionRoute')}
             </Button>
           </div>
         )}

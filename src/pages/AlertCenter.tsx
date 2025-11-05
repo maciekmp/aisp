@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Image, Video, FileText, Filter, X } from 'lucide-react'
 import type { Alert } from '@/types'
-import { UI_CONFIG } from '@/constants'
 
 const mockAlerts: Alert[] = [
   {
@@ -38,6 +38,7 @@ const mockAlerts: Alert[] = [
 ]
 
 export function AlertCenter() {
+  const { t, i18n } = useTranslation()
   const [alerts] = useState<Alert[]>(mockAlerts)
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -75,7 +76,8 @@ export function AlertCenter() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString(UI_CONFIG.DEFAULT_LOCALE)
+    const locale = i18n.language === 'pl' ? 'pl-PL' : 'en-US'
+    return new Date(timestamp).toLocaleString(locale)
   }
 
   return (
@@ -84,7 +86,7 @@ export function AlertCenter() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="p-6 border-b border-gray-200 bg-white">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Alert Center</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('alertCenter.title')}</h1>
           </div>
 
           {/* Filters */}
@@ -96,10 +98,10 @@ export function AlertCenter() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-1.5 border border-gray-300 rounded-md text-sm"
               >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="investigating">Investigating</option>
-                <option value="resolved">Resolved</option>
+                <option value="all">{t('alertCenter.allStatus')}</option>
+                <option value="active">{t('alertCenter.active')}</option>
+                <option value="investigating">{t('alertCenter.investigating')}</option>
+                <option value="resolved">{t('alertCenter.resolved')}</option>
               </select>
             </div>
             <select
@@ -107,11 +109,11 @@ export function AlertCenter() {
               onChange={(e) => setTypeFilter(e.target.value)}
               className="px-3 py-1.5 border border-gray-300 rounded-md text-sm"
             >
-              <option value="all">All Types</option>
-              <option value="security">Security</option>
-              <option value="fire">Fire</option>
-              <option value="intrusion">Intrusion</option>
-              <option value="equipment">Equipment</option>
+              <option value="all">{t('alertCenter.allTypes')}</option>
+              <option value="security">{t('alertCenter.security')}</option>
+              <option value="fire">{t('alertCenter.fire')}</option>
+              <option value="intrusion">{t('alertCenter.intrusion')}</option>
+              <option value="equipment">{t('alertCenter.equipment')}</option>
             </select>
           </div>
         </div>
@@ -121,7 +123,7 @@ export function AlertCenter() {
           <div className="space-y-3">
             {filteredAlerts.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
-                No alerts found
+                {t('alertCenter.noAlerts')}
               </div>
             ) : (
               filteredAlerts.map((alert) => (
@@ -136,7 +138,7 @@ export function AlertCenter() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTypeColor(alert.type)}`}>
-                            {alert.type}
+                            {t(`alertCenter.${alert.type}`)}
                           </span>
                           <span className="text-xs text-gray-500">{formatDate(alert.timestamp)}</span>
                         </div>
@@ -148,13 +150,13 @@ export function AlertCenter() {
                           {alert.images && alert.images.length > 0 && (
                             <div className="flex items-center gap-1 text-xs text-gray-500">
                               <Image className="w-3 h-3" />
-                              {alert.images.length} image{alert.images.length !== 1 ? 's' : ''}
+                              {alert.images.length} {alert.images.length === 1 ? t('alertCenter.image') : t('alertCenter.imagesPlural')}
                             </div>
                           )}
                           {alert.videos && alert.videos.length > 0 && (
                             <div className="flex items-center gap-1 text-xs text-gray-500">
                               <Video className="w-3 h-3" />
-                              {alert.videos.length} video{alert.videos.length !== 1 ? 's' : ''}
+                              {alert.videos.length} {alert.videos.length === 1 ? t('alertCenter.video') : t('alertCenter.videosPlural')}
                             </div>
                           )}
                         </div>
@@ -172,7 +174,7 @@ export function AlertCenter() {
       {selectedAlert && (
         <div className="w-[500px] bg-white border-l border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Alert Details</h2>
+            <h2 className="text-lg font-semibold">{t('alertCenter.alertDetails')}</h2>
             <Button
               variant="ghost"
               size="sm"
@@ -184,40 +186,40 @@ export function AlertCenter() {
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div>
-              <div className="text-sm text-gray-500 mb-1">Type</div>
+              <div className="text-sm text-gray-500 mb-1">{t('alertCenter.type')}</div>
               <span className={`px-2 py-1 rounded text-sm font-medium ${getTypeColor(selectedAlert.type)}`}>
-                {selectedAlert.type}
+                {t(`alertCenter.${selectedAlert.type}`)}
               </span>
             </div>
 
             <div>
-              <div className="text-sm text-gray-500 mb-1">Status</div>
+              <div className="text-sm text-gray-500 mb-1">{t('alertCenter.status')}</div>
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${getStatusColor(selectedAlert.status)}`}></div>
-                <span className="text-sm font-medium capitalize">{selectedAlert.status}</span>
+                <span className="text-sm font-medium capitalize">{t(`alertCenter.${selectedAlert.status}`)}</span>
               </div>
             </div>
 
             <div>
-              <div className="text-sm text-gray-500 mb-1">Time</div>
+              <div className="text-sm text-gray-500 mb-1">{t('alertCenter.time')}</div>
               <div className="text-sm font-medium">{formatDate(selectedAlert.timestamp)}</div>
             </div>
 
             <div>
-              <div className="text-sm text-gray-500 mb-1">Location</div>
+              <div className="text-sm text-gray-500 mb-1">{t('alertCenter.location')}</div>
               <div className="text-sm font-medium">
                 {selectedAlert.location.latitude.toFixed(6)}, {selectedAlert.location.longitude.toFixed(6)}
               </div>
             </div>
 
             <div>
-              <div className="text-sm text-gray-500 mb-1">Description</div>
+              <div className="text-sm text-gray-500 mb-1">{t('alertCenter.description')}</div>
               <div className="text-sm">{selectedAlert.description}</div>
             </div>
 
             {selectedAlert.images && selectedAlert.images.length > 0 && (
               <div>
-                <div className="text-sm text-gray-500 mb-2">Images</div>
+                <div className="text-sm text-gray-500 mb-2">{t('alertCenter.images')}</div>
                 <div className="grid grid-cols-2 gap-2">
                   {selectedAlert.images.map((_, idx) => (
                     <div key={idx} className="aspect-video bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
@@ -230,7 +232,7 @@ export function AlertCenter() {
 
             {selectedAlert.videos && selectedAlert.videos.length > 0 && (
               <div>
-                <div className="text-sm text-gray-500 mb-2">Videos</div>
+                <div className="text-sm text-gray-500 mb-2">{t('alertCenter.videos')}</div>
                 <div className="space-y-2">
                   {selectedAlert.videos.map((video, idx) => (
                     <div key={idx} className="aspect-video bg-gray-900 rounded border border-gray-200">
@@ -248,7 +250,7 @@ export function AlertCenter() {
               onClick={() => handleGeneratePDF(selectedAlert)}
             >
               <FileText className="w-4 h-4 mr-2" />
-              Generate PDF Report
+              {t('alertCenter.generatePdfReport')}
             </Button>
           </div>
         </div>

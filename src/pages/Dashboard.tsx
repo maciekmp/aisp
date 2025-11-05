@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Battery, Mountain, Navigation, Radio, Satellite, Thermometer, Droplets, Shield, Home, Pause, Joystick, Compass } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { VideoSection } from '@/components/VideoSection'
@@ -16,6 +17,7 @@ import { calculateMapBounds } from '@/utils/map'
  * Displays real-time drone telemetry, map visualization, video feeds, and mission status
  */
 export function Dashboard() {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<'manual' | 'auto'>('auto')
   const [speedMps, setSpeedMps] = useState(0)
   const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>(null)
@@ -168,8 +170,8 @@ export function Dashboard() {
           <div className="w-full h-full flex flex-col bg-black">
             {expandedVideo === 'rgb' ? (
               <VideoSection 
-                title="RGB Camera" 
-                subtitle="Visible spectrum (color)" 
+                title={t('dashboard.rgbCamera')} 
+                subtitle={t('dashboard.rgbSubtitle')} 
                 src="/rgb.mp4"
                 onExpand={() => setExpandedVideo(null)}
                 isExpanded={true}
@@ -178,8 +180,8 @@ export function Dashboard() {
               />
             ) : (
               <VideoSection 
-                title="Thermal Camera" 
-                subtitle="Infrared heat visualization" 
+                title={t('dashboard.thermalCamera')} 
+                subtitle={t('dashboard.thermalSubtitle')} 
                 src="/rgb.mp4" 
                 filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
                 onExpand={() => setExpandedVideo(null)}
@@ -194,8 +196,8 @@ export function Dashboard() {
             <MapView 
               base={base} 
               drone={drone}
-              title="Mission Map"
-              subtitle="Real-time flight tracking"
+              title={t('dashboard.title')}
+              subtitle={t('dashboard.subtitle')}
             />
             {mode === 'manual' && (
               <div className="absolute left-2 bottom-2 select-none">
@@ -207,8 +209,8 @@ export function Dashboard() {
                       onPointerDown={(e) => { e.preventDefault(); keys.current.up = true }}
                       onPointerUp={(e) => { e.preventDefault(); keys.current.up = false }}
                       onPointerLeave={() => { keys.current.up = false }}
-                      aria-label="Forward"
-                      title="Forward"
+                      aria-label={t('dashboard.forward')}
+                      title={t('dashboard.forward')}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
                     </button>
@@ -219,8 +221,8 @@ export function Dashboard() {
                       onPointerDown={(e) => { e.preventDefault(); keys.current.left = true }}
                       onPointerUp={(e) => { e.preventDefault(); keys.current.left = false }}
                       onPointerLeave={() => { keys.current.left = false }}
-                      aria-label="Turn Left"
-                      title="Turn Left"
+                      aria-label={t('dashboard.turnLeft')}
+                      title={t('dashboard.turnLeft')}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h13"/><path d="m11 5-7 7 7 7"/></svg>
                     </button>
@@ -230,8 +232,8 @@ export function Dashboard() {
                       onPointerDown={(e) => { e.preventDefault(); keys.current.right = true }}
                       onPointerUp={(e) => { e.preventDefault(); keys.current.right = false }}
                       onPointerLeave={() => { keys.current.right = false }}
-                      aria-label="Turn Right"
-                      title="Turn Right"
+                      aria-label={t('dashboard.turnRight')}
+                      title={t('dashboard.turnRight')}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12h13"/><path d="m13 5 7 7-7 7"/></svg>
                     </button>
@@ -242,8 +244,8 @@ export function Dashboard() {
                       onPointerDown={(e) => { e.preventDefault(); keys.current.down = true }}
                       onPointerUp={(e) => { e.preventDefault(); keys.current.down = false }}
                       onPointerLeave={() => { keys.current.down = false }}
-                      aria-label="Backward"
-                      title="Backward"
+                      aria-label={t('dashboard.backward')}
+                      title={t('dashboard.backward')}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
                     </button>
@@ -264,14 +266,14 @@ export function Dashboard() {
               base={base} 
               drone={drone} 
               showLegend={false}
-              title="Mission Map"
-              subtitle="Real-time flight tracking"
+              title={t('dashboard.title')}
+              subtitle={t('dashboard.subtitle')}
             />
           </div>
         ) : (
           <VideoSection 
-            title="RGB Camera" 
-            subtitle="Visible spectrum (color)" 
+            title={t('dashboard.rgbCamera')} 
+            subtitle={t('dashboard.rgbSubtitle')} 
             src="/rgb.mp4"
             onExpand={() => setExpandedVideo('rgb')}
             onTakePhoto={() => {}}
@@ -284,14 +286,14 @@ export function Dashboard() {
               base={base} 
               drone={drone} 
               showLegend={false}
-              title="Mission Map"
-              subtitle="Real-time flight tracking"
+              title={t('dashboard.title')}
+              subtitle={t('dashboard.subtitle')}
             />
           </div>
         ) : (
           <VideoSection 
-            title="Thermal Camera" 
-            subtitle="Infrared heat visualization" 
+            title={t('dashboard.thermalCamera')} 
+            subtitle={t('dashboard.thermalSubtitle')} 
             src="/rgb.mp4" 
             filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
             onExpand={() => setExpandedVideo('thermal')}
@@ -303,7 +305,7 @@ export function Dashboard() {
         {/* Section 3: Drone Telemetry */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-gray-700">Telemetry</h3>
+            <h3 className="text-xs font-semibold text-gray-700">{t('dashboard.telemetry')}</h3>
             <div className="flex items-center gap-3">
               <TelemetryHeaderItem icon={<Navigation className="w-3.5 h-3.5 text-gray-600" />} value={`${speedMps.toFixed(1)} m/s`} valueClassName="w-12 inline-block text-right" />
               <TelemetryHeaderItem icon={<Mountain className="w-3.5 h-3.5 text-gray-600" />} value="42.5m" />
@@ -329,19 +331,19 @@ export function Dashboard() {
                   <div className="drop-shadow">
                     <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={drone.headingDegrees} size={20} />
                   </div>
-                  <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">Drone Data</h4>
+                  <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">{t('dashboard.droneData')}</h4>
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <TelemetryCard
                     icon={<Compass className="w-3 h-3 text-gray-600 flex-shrink-0" />}
-                    label="Bearing"
+                    label={t('dashboard.bearing')}
                     value={`${Math.round(drone.headingDegrees).toString().padStart(3, '0')}°`}
                     valueColor="text-gray-600"
                   />
                   <TelemetryCard
                     icon={<Shield className="w-3 h-3 text-gray-600 flex-shrink-0" />}
-                    label="Flap"
-                    value="Closed"
+                    label={t('dashboard.flap')}
+                    value={t('dashboard.flapClosed')}
                     valueColor="text-gray-600"
                   />
                 </div>
@@ -353,31 +355,31 @@ export function Dashboard() {
                   <div className="drop-shadow">
                     <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={0} size={20} />
                   </div>
-                  <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">Docking Station</h4>
+                  <h4 className="text-[9px] font-semibold text-gray-600 uppercase tracking-wide">{t('dashboard.dockingStation')}</h4>
                 </div>
                 <div className="grid grid-cols-4 gap-1">
                   <TelemetryCard
                     icon={<Thermometer className="w-3 h-3 text-gray-600 flex-shrink-0" />}
-                    label="Temp"
+                    label={t('dashboard.temp')}
                     value="22°C"
                     valueColor="text-gray-600"
                   />
                   <TelemetryCard
                     icon={<Droplets className="w-3 h-3 text-gray-600 flex-shrink-0" />}
-                    label="Humidity"
+                    label={t('dashboard.humidity')}
                     value="45%"
                     valueColor="text-gray-600"
                   />
                   <TelemetryCard
                     icon={<Shield className="w-3 h-3 text-green-600 flex-shrink-0" />}
-                    label="Flood"
-                    value="OK"
+                    label={t('dashboard.flood')}
+                    value={t('dashboard.floodOk')}
                     valueColor="text-green-600"
                   />
                   <TelemetryCard
                     icon={<div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>}
-                    label="Docking"
-                    value="No"
+                    label={t('dashboard.docking')}
+                    value={t('dashboard.dockingNo')}
                     valueColor="text-red-600"
                   />
                 </div>
@@ -389,8 +391,8 @@ export function Dashboard() {
               <>
                 <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
                   <div className="flex items-center gap-1 justify-between mb-0.5">
-                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">Mission Status</div>
-                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">In Progress (43%)</div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.missionStatus')}</div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.inProgress')} (43%)</div>
                   </div>
                   <div className="h-2 bg-gray-200 rounded">
                     <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
@@ -402,7 +404,7 @@ export function Dashboard() {
               <>
                 <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
                   <div className="text-[9px] text-gray-600 text-center">
-                    Use Arrow keys to steer. Switch to Auto with the Control button.
+                    {t('dashboard.manualInstructions')}
                   </div>
                 </div>
                 <OperationalLog missionId="current" />
@@ -413,20 +415,20 @@ export function Dashboard() {
             <div className="inline-flex w-full pt-0.5 rounded-md overflow-hidden">
               <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none first:rounded-l-md bg-yellow-200 hover:bg-yellow-300 text-yellow-800">
                 <Pause className="w-4 h-4 mr-1.5" />
-                Pause
+                {t('dashboard.pause')}
               </Button>
               <Button variant="secondary" className="h-10 text-sm flex-1 rounded-none bg-blue-200 hover:bg-blue-300 text-blue-800">
                 <Home className="w-4 h-4 mr-1.5" />
-                Home
+                {t('dashboard.home')}
               </Button>
               <Button
                 variant="destructive"
                 className="h-10 text-sm flex-1 rounded-none last:rounded-r-md bg-red-200 hover:bg-red-300 text-red-800"
                 onClick={() => setMode((m) => (m === 'manual' ? 'auto' : 'manual'))}
-                title={mode === 'manual' ? 'Switch to Auto' : 'Switch to Manual'}
+                title={mode === 'manual' ? t('dashboard.switchToAuto') : t('dashboard.switchToManual')}
               >
                 <Joystick className="w-4 h-4 mr-1.5" />
-                {mode === 'auto' ? 'Manual' : 'Auto'}
+                {mode === 'auto' ? t('dashboard.manual') : t('dashboard.auto')}
               </Button>
             </div>
           </div>

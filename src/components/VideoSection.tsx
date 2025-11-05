@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Expand, Minimize2, Camera } from 'lucide-react'
 
 /**
@@ -27,6 +28,7 @@ interface VideoSectionProps {
  * Supports both RGB and thermal camera feeds with optional CSS filters
  */
 export function VideoSection({ title, src, subtitle, filter, onExpand, isExpanded, onTakePhoto, onSaveClip }: VideoSectionProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
       <div className="flex-1 flex items-center justify-center bg-black relative">
@@ -49,8 +51,8 @@ export function VideoSection({ title, src, subtitle, filter, onExpand, isExpande
             <button
               onClick={onExpand}
               className="w-12 h-8 bg-black/30 hover:bg-black/50 rounded flex items-center justify-center transition-colors backdrop-blur-sm"
-              title={isExpanded ? "Collapse video" : "Expand video"}
-              aria-label={isExpanded ? "Collapse video" : "Expand video to center"}
+              title={isExpanded ? t('dashboard.collapseVideo') : t('dashboard.expandVideo')}
+              aria-label={isExpanded ? t('dashboard.collapseVideo') : t('dashboard.expandVideo')}
             >
               {isExpanded ? (
                 <Minimize2 className="w-4 h-4 text-white" />
@@ -63,8 +65,8 @@ export function VideoSection({ title, src, subtitle, filter, onExpand, isExpande
             <button
               onClick={onTakePhoto}
               className="w-12 h-8 bg-black/30 hover:bg-black/50 rounded flex items-center justify-center transition-colors backdrop-blur-sm"
-              title="Take photo"
-              aria-label="Take photo"
+              title={t('dashboard.takePhoto')}
+              aria-label={t('dashboard.takePhoto')}
             >
               <Camera className="w-4 h-4 text-white" />
             </button>
@@ -73,8 +75,8 @@ export function VideoSection({ title, src, subtitle, filter, onExpand, isExpande
             <button
               onClick={onSaveClip}
               className="w-12 h-8 bg-black/30 hover:bg-black/50 rounded flex items-center justify-center transition-colors backdrop-blur-sm"
-              title="Save clip"
-              aria-label="Save clip"
+              title={t('dashboard.saveClip')}
+              aria-label={t('dashboard.saveClip')}
             >
               <span className="text-xs text-white font-medium">30s</span>
             </button>

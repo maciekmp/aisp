@@ -1,9 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { ArchiveIcon, Filter, FileText, Image, Video, Download, X } from 'lucide-react'
 import { OperationalLog } from '@/components/OperationalLog'
 import type { Mission, MissionStatus } from '@/types'
-import { UI_CONFIG } from '@/constants'
 
 const mockMissions: Mission[] = [
   {
@@ -55,6 +55,7 @@ const mockMissions: Mission[] = [
 ]
 
 export function Archive() {
+  const { t, i18n } = useTranslation()
   const [missions] = useState<Mission[]>(mockMissions)
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -75,7 +76,8 @@ export function Archive() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString(UI_CONFIG.DEFAULT_LOCALE)
+    const locale = i18n.language === 'pl' ? 'pl-PL' : 'en-US'
+    return new Date(timestamp).toLocaleString(locale)
   }
 
   const formatDuration = (seconds?: number) => {
@@ -90,7 +92,7 @@ export function Archive() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="p-6 border-b border-gray-200 bg-white">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Archive</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('archive.title')}</h1>
           <div className="flex gap-3">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-gray-500" />
@@ -99,10 +101,10 @@ export function Archive() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-1.5 border border-gray-300 rounded-md text-sm"
               >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="failed">Failed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="all">{t('archive.allStatus')}</option>
+                <option value="completed">{t('archive.completed')}</option>
+                <option value="failed">{t('archive.failed')}</option>
+                <option value="cancelled">{t('archive.cancelled')}</option>
               </select>
             </div>
             <select
@@ -110,10 +112,10 @@ export function Archive() {
               onChange={(e) => setDateFilter(e.target.value)}
               className="px-3 py-1.5 border border-gray-300 rounded-md text-sm"
             >
-              <option value="all">All Dates</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
+              <option value="all">{t('archive.allDates')}</option>
+              <option value="today">{t('archive.today')}</option>
+              <option value="week">{t('archive.week')}</option>
+              <option value="month">{t('archive.month')}</option>
             </select>
           </div>
         </div>
@@ -122,7 +124,7 @@ export function Archive() {
           <div className="space-y-3">
             {filteredMissions.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
-                No missions found
+                {t('archive.noMissions')}
               </div>
             ) : (
               filteredMissions.map((mission) => (
@@ -137,26 +139,26 @@ export function Archive() {
                         <ArchiveIcon className="w-5 h-5 text-gray-600" />
                         <div className="font-semibold text-gray-900">{mission.name}</div>
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(mission.status)}`}>
-                          {mission.status}
+                          {t(`archive.${mission.status}`)}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <div className="text-gray-500 mb-1">Start</div>
+                          <div className="text-gray-500 mb-1">{t('archive.start')}</div>
                           <div className="font-medium">{formatDate(mission.startTime)}</div>
                         </div>
                         {mission.endTime && (
                           <div>
-                            <div className="text-gray-500 mb-1">End</div>
+                            <div className="text-gray-500 mb-1">{t('archive.end')}</div>
                             <div className="font-medium">{formatDate(mission.endTime)}</div>
                           </div>
                         )}
                         <div>
-                          <div className="text-gray-500 mb-1">Duration</div>
+                          <div className="text-gray-500 mb-1">{t('archive.duration')}</div>
                           <div className="font-medium">{formatDuration(mission.duration)}</div>
                         </div>
                         <div>
-                          <div className="text-gray-500 mb-1">Waypoints</div>
+                          <div className="text-gray-500 mb-1">{t('archive.waypoints')}</div>
                           <div className="font-medium">{mission.waypoints}</div>
                         </div>
                       </div>
@@ -164,19 +166,19 @@ export function Archive() {
                         {mission.images !== undefined && (
                           <div className="flex items-center gap-1">
                             <Image className="w-4 h-4" />
-                            {mission.images} images
+                            {mission.images} {t('archive.images')}
                           </div>
                         )}
                         {mission.videos !== undefined && (
                           <div className="flex items-center gap-1">
                             <Video className="w-4 h-4" />
-                            {mission.videos} videos
+                            {mission.videos} {t('archive.videos')}
                           </div>
                         )}
                         {mission.logs && (
                           <div className="flex items-center gap-1">
                             <FileText className="w-4 h-4" />
-                            Logs available
+                            {t('archive.logsAvailable')}
                           </div>
                         )}
                       </div>
@@ -205,30 +207,30 @@ export function Archive() {
 
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             <div>
-              <div className="text-sm font-medium text-gray-700 mb-2">Mission Details</div>
+              <div className="text-sm font-medium text-gray-700 mb-2">{t('archive.missionDetails')}</div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Status:</span>
+                  <span className="text-gray-500">{t('alertCenter.status')}:</span>
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(selectedMission.status)}`}>
-                    {selectedMission.status}
+                    {t(`archive.${selectedMission.status}`)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Start:</span>
+                  <span className="text-gray-500">{t('archive.start')}:</span>
                   <span className="font-medium">{formatDate(selectedMission.startTime)}</span>
                 </div>
                 {selectedMission.endTime && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">End:</span>
+                    <span className="text-gray-500">{t('archive.end')}:</span>
                     <span className="font-medium">{formatDate(selectedMission.endTime)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Duration:</span>
+                  <span className="text-gray-500">{t('archive.duration')}:</span>
                   <span className="font-medium">{formatDuration(selectedMission.duration)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Waypoints:</span>
+                  <span className="text-gray-500">{t('archive.waypoints')}:</span>
                   <span className="font-medium">{selectedMission.waypoints}</span>
                 </div>
               </div>
@@ -236,7 +238,7 @@ export function Archive() {
 
             {selectedMission.images !== undefined && selectedMission.images > 0 && (
               <div>
-                <div className="text-sm font-medium text-gray-700 mb-2">Images ({selectedMission.images})</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">{t('archive.images')} ({selectedMission.images})</div>
                 <div className="grid grid-cols-2 gap-2">
                   {Array.from({ length: Math.min(selectedMission.images, 4) }).map((_, idx) => (
                     <div key={idx} className="aspect-video bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
@@ -246,14 +248,14 @@ export function Archive() {
                 </div>
                 <Button variant="outline" size="sm" className="mt-2 w-full">
                   <Download className="w-4 h-4 mr-2" />
-                  Download All Images
+                  {t('archive.downloadAllImages')}
                 </Button>
               </div>
             )}
 
             {selectedMission.videos !== undefined && selectedMission.videos > 0 && (
               <div>
-                <div className="text-sm font-medium text-gray-700 mb-2">Videos ({selectedMission.videos})</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">{t('archive.videos')} ({selectedMission.videos})</div>
                 <div className="space-y-2">
                   {Array.from({ length: selectedMission.videos }).map((_, idx) => (
                     <div key={idx} className="aspect-video bg-gray-900 rounded border border-gray-200">
@@ -263,14 +265,14 @@ export function Archive() {
                 </div>
                 <Button variant="outline" size="sm" className="mt-2 w-full">
                   <Download className="w-4 h-4 mr-2" />
-                  Download All Videos
+                  {t('archive.downloadAllVideos')}
                 </Button>
               </div>
             )}
 
             {selectedMission.logs && (
               <div>
-                <div className="text-sm font-medium text-gray-700 mb-2">Operational Logs</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">{t('archive.operationalLogs')}</div>
                 <div className="border border-gray-200 rounded">
                   <OperationalLog missionId={selectedMission.id} />
                 </div>

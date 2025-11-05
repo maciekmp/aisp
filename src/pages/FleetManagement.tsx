@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Drone, HardDrive, Activity, FileText, AlertCircle, CheckCircle } from 'lucide-react'
 import type { DroneItem, DockStation } from '@/types'
-import { UI_CONFIG } from '@/constants'
 
 const mockDrones: DroneItem[] = [
   {
@@ -71,6 +71,7 @@ const mockDocks: DockStation[] = [
 ]
 
 export function FleetManagement() {
+  const { t, i18n } = useTranslation()
   const [activeTab, setActiveTab] = useState<'drones' | 'docks'>('drones')
   const [selectedItem, setSelectedItem] = useState<string | null>(null)
   const [logs, setLogs] = useState<{ id: string; timestamp: number; message: string }[]>([])
@@ -116,7 +117,8 @@ export function FleetManagement() {
   }
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString(UI_CONFIG.DEFAULT_LOCALE)
+    const locale = i18n.language === 'pl' ? 'pl-PL' : 'en-US'
+    return new Date(timestamp).toLocaleString(locale)
   }
 
   return (
@@ -124,21 +126,21 @@ export function FleetManagement() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="p-6 border-b border-gray-200 bg-white">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Fleet & Dock Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('fleetManagement.title')}</h1>
           <div className="flex gap-2">
             <Button
               variant={activeTab === 'drones' ? 'default' : 'outline'}
               onClick={() => setActiveTab('drones')}
             >
               <Drone className="w-4 h-4 mr-2" />
-              Drones ({mockDrones.length})
+              {t('fleetManagement.dronesCount', { count: mockDrones.length })}
             </Button>
             <Button
               variant={activeTab === 'docks' ? 'default' : 'outline'}
               onClick={() => setActiveTab('docks')}
             >
               <HardDrive className="w-4 h-4 mr-2" />
-              Docking Stations ({mockDocks.length})
+              {t('fleetManagement.docksCount', { count: mockDocks.length })}
             </Button>
           </div>
         </div>
@@ -157,19 +159,19 @@ export function FleetManagement() {
                       <div>
                         <div className="font-semibold text-gray-900">{drone.name}</div>
                         <div className="text-sm text-gray-500">
-                          Last update: {formatDate(drone.lastUpdate)}
+                          {t('fleetManagement.lastUpdate')}: {formatDate(drone.lastUpdate)}
                         </div>
                       </div>
                     </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${getStatusColor(drone.status)}`}>
                       {getStatusIcon(drone.status)}
-                      {drone.status}
+                      {t(`fleetManagement.status.${drone.status}`)}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-3">
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Battery</div>
+                      <div className="text-xs text-gray-500 mb-1">{t('fleetManagement.battery')}</div>
                       <div className="text-sm font-medium">{drone.battery}%</div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
                         <div
@@ -180,13 +182,13 @@ export function FleetManagement() {
                     </div>
                     {drone.currentMission && (
                       <div>
-                        <div className="text-xs text-gray-500 mb-1">Mission</div>
+                        <div className="text-xs text-gray-500 mb-1">{t('fleetManagement.mission')}</div>
                         <div className="text-sm font-medium">{drone.currentMission}</div>
                       </div>
                     )}
                     {drone.location && (
                       <div className="col-span-2">
-                        <div className="text-xs text-gray-500 mb-1">Location</div>
+                        <div className="text-xs text-gray-500 mb-1">{t('fleetManagement.location')}</div>
                         <div className="text-sm font-medium">
                           {drone.location.latitude.toFixed(6)}, {drone.location.longitude.toFixed(6)}
                         </div>
@@ -201,7 +203,7 @@ export function FleetManagement() {
                     className="w-full"
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    View Logs
+                    {t('fleetManagement.viewLogs')}
                   </Button>
                 </div>
               ))}
@@ -219,21 +221,21 @@ export function FleetManagement() {
                       <div>
                         <div className="font-semibold text-gray-900">{dock.name}</div>
                         <div className="text-sm text-gray-500">
-                          Last update: {formatDate(dock.lastUpdate)}
+                          {t('fleetManagement.lastUpdate')}: {formatDate(dock.lastUpdate)}
                         </div>
                       </div>
                     </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${getStatusColor(dock.status)}`}>
                       {getStatusIcon(dock.status)}
-                      {dock.status}
+                      {t(`fleetManagement.status.${dock.status}`)}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-3">
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Capacity</div>
+                      <div className="text-xs text-gray-500 mb-1">{t('fleetManagement.capacity')}</div>
                       <div className="text-sm font-medium">
-                        {dock.droneCount} / {dock.capacity} drones
+                        {dock.droneCount} / {dock.capacity} {t('fleetManagement.drones').toLowerCase()}
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
                         <div
@@ -243,11 +245,11 @@ export function FleetManagement() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Temperature</div>
+                      <div className="text-xs text-gray-500 mb-1">{t('fleetManagement.temperature')}</div>
                       <div className="text-sm font-medium">{dock.temperature}°C</div>
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 mb-1">Humidity</div>
+                      <div className="text-xs text-gray-500 mb-1">{t('fleetManagement.humidity')}</div>
                       <div className="text-sm font-medium">{dock.humidity}%</div>
                     </div>
                   </div>
@@ -259,7 +261,7 @@ export function FleetManagement() {
                     className="w-full"
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    View Logs
+                    {t('fleetManagement.viewLogs')}
                   </Button>
                 </div>
               ))}
@@ -272,7 +274,7 @@ export function FleetManagement() {
       {selectedItem && (
         <div className="w-[400px] bg-white border-l border-gray-200 flex flex-col">
           <div className="p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold">Logs</h2>
+            <h2 className="text-lg font-semibold">{t('fleetManagement.logs')}</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-2">

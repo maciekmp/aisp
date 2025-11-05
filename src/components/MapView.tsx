@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState, useEffect } from 'react'
+import React, { useMemo, useRef, useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Map, { NavigationControl, Source, Layer, Marker, type MapRef } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { Layers, HelpCircle, X } from 'lucide-react'
@@ -40,6 +41,26 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
 }
 
 /**
+ * Reusable legend item component with consistent icon width
+ * @param icon - Icon or marker element to display
+ * @param label - Main label text
+ * @param description - Optional description text
+ */
+function LegendItem({ icon, label, description }: { icon: React.ReactNode; label: string; description?: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+        {icon}
+      </div>
+      <div>
+        <div className="text-sm font-medium text-gray-800">{label}</div>
+        {description && <div className="text-xs text-gray-500">{description}</div>}
+      </div>
+    </div>
+  )
+}
+
+/**
  * Interactive map view component with drone tracking, waypoints, and mission visualization
  * @param props - Map view configuration
  * @param props.base - Base station marker position and heading
@@ -50,6 +71,7 @@ export function MarkerIcon({ color, strokeColor, headingDegrees, size = 64 }: { 
  * @param props.subtitle - Optional subtitle text
  */
 export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void; title?: string; subtitle?: string }) {
+  const { t } = useTranslation()
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -253,8 +275,8 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 w-7 h-7 flex items-center justify-center transition-colors"
-          title="Map Layers"
-          aria-label="Toggle map layers"
+          title={t('mapView.mapLayers')}
+          aria-label={t('mapView.mapLayers')}
         >
           <Layers className="w-4 h-4 text-gray-700" />
         </button>
@@ -262,7 +284,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
         {isDropdownOpen && (
           <div className="absolute top-full right-0 mt-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-2 w-48">
             <div className="text-xs font-semibold text-gray-700 px-2 py-1.5 border-b border-gray-200 mb-1">
-              Map Layers
+              {t('mapView.mapLayers')}
             </div>
             <div className="space-y-1">
               <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
@@ -272,7 +294,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
                   onChange={(e) => setSatelliteView(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded"
                 />
-                <span className="text-sm text-gray-700">Satellite View</span>
+                <span className="text-sm text-gray-700">{t('mapView.satelliteView')}</span>
               </label>
               <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
                 <input
@@ -281,7 +303,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
                   onChange={(e) => setShowControlledArea(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded"
                 />
-                <span className="text-sm text-gray-700">Controlled Area</span>
+                <span className="text-sm text-gray-700">{t('mapView.controlledArea')}</span>
               </label>
               <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
                 <input
@@ -290,7 +312,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
                   onChange={(e) => setShowMissionPath(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded"
                 />
-                <span className="text-sm text-gray-700">Mission Path</span>
+                <span className="text-sm text-gray-700">{t('mapView.missionPath')}</span>
               </label>
               <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
                 <input
@@ -299,7 +321,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
                   onChange={(e) => setShowDroneTrace(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded"
                 />
-                <span className="text-sm text-gray-700">Drone Trace</span>
+                <span className="text-sm text-gray-700">{t('mapView.droneTrace')}</span>
               </label>
               <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer">
                 <input
@@ -308,7 +330,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
                   onChange={(e) => setShowAlerts(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded"
                 />
-                <span className="text-sm text-gray-700">Alerts</span>
+                <span className="text-sm text-gray-700">{t('mapView.alerts')}</span>
               </label>
             </div>
           </div>
@@ -333,7 +355,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
 
       {/* Base station marker (rendered first, so drone appears above it) */}
       <Marker longitude={baseLon} latitude={baseLat} anchor="center">
-        <div title="Base Station" className="drop-shadow">
+        <div title={t('mapView.baseStation')} className="drop-shadow">
           <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={baseHeading} />
         </div>
       </Marker>
@@ -398,7 +420,7 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
 
       {/* Drone position marker (rendered last, so it appears above base and path) */}
       <Marker longitude={droneLon} latitude={droneLat} anchor="center">
-        <div title="Drone (current)" className="drop-shadow">
+        <div title={t('mapView.drone')} className="drop-shadow">
           <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={droneHeading} />
         </div>
       </Marker>
@@ -410,8 +432,8 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
             <button
               onClick={() => setIsLegendOpen(!isLegendOpen)}
               className="bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 w-7 h-7 flex items-center justify-center transition-colors"
-              title="Map Legend"
-              aria-label="Toggle map legend"
+              title={t('mapView.mapLegend')}
+              aria-label={t('mapView.mapLegend')}
             >
               <HelpCircle className="w-4 h-4 text-gray-700" />
             </button>
@@ -426,11 +448,11 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
           >
         <div className="p-4 overflow-y-auto" style={{ maxHeight: '50vh' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Map Legend</h3>
+            <h3 className="text-lg font-semibold text-gray-800">{t('mapView.mapLegend')}</h3>
             <button
               onClick={() => setIsLegendOpen(false)}
               className="p-1 hover:bg-gray-100 rounded transition-colors"
-              aria-label="Close legend"
+              aria-label={t('common.close')}
             >
               <X className="w-5 h-5 text-gray-600" />
             </button>
@@ -439,68 +461,54 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
           <div className="space-y-6 grid grid-cols-3">
             {/* Markers */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Markers</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">{t('mapView.markers')}</h4>
               <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 flex items-center justify-center drop-shadow">
-                    <MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={0} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Base Station</div>
-                    <div className="text-xs text-gray-500">Fixed ground control point</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 flex items-center justify-center drop-shadow">
-                    <MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={45} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Drone</div>
-                    <div className="text-xs text-gray-500">Current position and heading</div>
-                  </div>
-                </div>
+                <LegendItem
+                  icon={<MarkerIcon color="#fca5a5" strokeColor="#ffffff" headingDegrees={0} />}
+                  label={t('mapView.baseStation')}
+                  description={t('mapView.baseStationDesc')}
+                />
+                <LegendItem
+                  icon={<MarkerIcon color="#93c5fd" strokeColor="#ffffff" headingDegrees={45} />}
+                  label={t('mapView.drone')}
+                  description={t('mapView.droneDesc')}
+                />
               </div>
             </div>
 
             {/* Layers */}
             <div className="col-span-2">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Layers</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">{t('mapView.layers')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded border-2 border-blue-600" style={{ backgroundColor: 'rgba(59, 130, 246, 0.25)' }}></div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Controlled Area</div>
-                    <div className="text-xs text-gray-500">Designated operation zone</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-1 bg-gray-500" style={{ backgroundImage: 'repeating-linear-gradient(to right, #6b7280 0, #6b7280 4px, transparent 4px, transparent 8px)' }}></div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Mission Path</div>
-                    <div className="text-xs text-gray-500">Planned flight route</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-1 bg-green-500"></div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Drone Trace</div>
-                    <div className="text-xs text-gray-500">Actual path traveled</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white"></div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Alert (Error)</div>
-                    <div className="text-xs text-gray-500">Critical issues or restrictions</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full bg-orange-500 border-2 border-white"></div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-800">Alert (Warning)</div>
-                    <div className="text-xs text-gray-500">Cautionary notifications</div>
-                  </div>
-                </div>
+                <LegendItem
+                  icon={
+                    <div className="w-6 h-6 rounded border-2 border-blue-600" style={{ backgroundColor: 'rgba(59, 130, 246, 0.25)' }}></div>
+                  }
+                  label={t('mapView.controlledArea')}
+                  description={t('mapView.controlledAreaDesc')}
+                />
+                <LegendItem
+                  icon={
+                    <div className="w-8 h-1 bg-gray-500" style={{ backgroundImage: 'repeating-linear-gradient(to right, #6b7280 0, #6b7280 4px, transparent 4px, transparent 8px)' }}></div>
+                  }
+                  label={t('mapView.missionPath')}
+                  description={t('mapView.missionPathDesc')}
+                />
+                <LegendItem
+                  icon={<div className="w-8 h-1 bg-green-500"></div>}
+                  label={t('mapView.droneTrace')}
+                  description={t('mapView.droneTraceDesc')}
+                />
+                <LegendItem
+                  icon={<div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white"></div>}
+                  label={t('mapView.alertError')}
+                  description={t('mapView.alertErrorDesc')}
+                />
+                <LegendItem
+                  icon={<div className="w-4 h-4 rounded-full bg-orange-500 border-2 border-white"></div>}
+                  label={t('mapView.alertWarning')}
+                  description={t('mapView.alertWarningDesc')}
+                />
               </div>
             </div>
           </div>

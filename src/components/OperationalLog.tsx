@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { MessageSquare, Send } from 'lucide-react'
 import type { LogEntry } from '@/types'
@@ -21,6 +22,7 @@ interface OperationalLogProps {
  * Maintains a maximum of 50 entries per mission
  */
 export function OperationalLog({ missionId = 'current', onLogAdded }: OperationalLogProps) {
+  const { t } = useTranslation()
   const [comment, setComment] = useState('')
   const [logs, setLogs] = useLocalStorage<LogEntry[]>(`operational_logs_${missionId}`, [])
 
@@ -46,7 +48,7 @@ export function OperationalLog({ missionId = 'current', onLogAdded }: Operationa
         <div className="flex items-center gap-1.5 mb-1.5">
           <MessageSquare className="w-3 h-3 text-gray-600" />
           <div className="text-[9px] text-gray-600 uppercase tracking-wide font-semibold">
-            Operational Log
+            {t('operationalLog.title')}
           </div>
         </div>
 
@@ -55,7 +57,7 @@ export function OperationalLog({ missionId = 'current', onLogAdded }: Operationa
             type="text"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Add comment..."
+            placeholder={t('operationalLog.placeholder')}
             className="flex-1 text-[10px] px-2 py-1 border border-gray-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             maxLength={LOG_CONFIG.MAX_MESSAGE_LENGTH}
           />
