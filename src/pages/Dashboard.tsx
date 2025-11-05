@@ -259,7 +259,7 @@ export function Dashboard() {
       </div>
       
       {/* Sidebar - shows VideoSections or MapView when expanded */}
-      <div className="w-[30%] border-l border-gray-200 bg-white flex flex-col overflow-hidden">
+      <div className="w-140 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
         {expandedVideo === 'rgb' ? (
           <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
             <MapView 
@@ -302,9 +302,9 @@ export function Dashboard() {
           />
         )}
 
-        {/* Section 3: Drone Telemetry */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+        {/* Section 3: Drone Telemetry - Scrollable */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          <div className="px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
             <h3 className="text-xs font-semibold text-gray-700">{t('dashboard.telemetry')}</h3>
             <div className="flex items-center gap-3">
               <TelemetryHeaderItem icon={<Navigation className="w-3.5 h-3.5 text-gray-600" />} value={`${speedMps.toFixed(1)} m/s`} valueClassName="w-12 inline-block text-right" />
@@ -322,7 +322,7 @@ export function Dashboard() {
               <TelemetryHeaderItem icon={<Battery className="w-3.5 h-3.5 text-gray-600" />} value="85%" />
             </div>
           </div>
-          <div className="flex-1 p-2 flex flex-col gap-1.5">
+          <div className="flex-1 p-2 flex flex-col gap-1.5 overflow-y-auto min-w-0">
             {/* Two Main Columns */}
             <div className="grid grid-cols-3 gap-1">
               {/* Drone Data Column */}
@@ -385,30 +385,30 @@ export function Dashboard() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
+        {/* Section 4: Mission Status & Controls - Fixed at bottom */}
+        <div className="flex-shrink-0 border-t border-gray-200 bg-white">
+          <div className="p-2 flex flex-col gap-1.5">
+            <OperationalLog missionId="current" />
             {/* Mission Status (auto) or Instructions (manual) */}
             {mode === 'auto' ? (
-              <>
-                <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
-                  <div className="flex items-center gap-1 justify-between mb-0.5">
-                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.missionStatus')}</div>
-                    <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.inProgress')} (43%)</div>
-                  </div>
-                  <div className="h-2 bg-gray-200 rounded">
-                    <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
-                  </div>
+              <div className="bg-gray-50 p-1 py-2 rounded border border-gray-200">
+                <div className="flex items-center gap-1 justify-between mb-0.5">
+                  <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.missionStatus')}</div>
+                  <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.inProgress')} (43%)</div>
                 </div>
-                <OperationalLog missionId="current" />
-              </>
+                <div className="h-2 bg-gray-200 rounded">
+                  <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
+                </div>
+              </div>
             ) : (
-              <>
-                <div className="bg-gray-50 p-1 py-2 rounded mb-1.5">
-                  <div className="text-[9px] text-gray-600 text-center">
-                    {t('dashboard.manualInstructions')}
-                  </div>
+              <div className="bg-gray-50 p-1 py-2 rounded border border-gray-200">
+                <div className="text-[9px] text-gray-600 text-center">
+                  {t('dashboard.manualInstructions')}
                 </div>
-                <OperationalLog missionId="current" />
-              </>
+              </div>
             )}
 
             {/* Control Buttons - Grouped & Larger */}
