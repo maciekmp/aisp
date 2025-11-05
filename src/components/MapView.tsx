@@ -8,6 +8,9 @@ import bbox from '@turf/bbox'
 import type { Feature, Polygon, LineString, Point, FeatureCollection } from 'geojson'
 import type { MarkerData } from '@/types'
 import { MAP_CONFIG, DRONE_TRACE } from '@/constants'
+import type { PhysicsLog } from '@/pages/Dashboard'
+
+type LogTimeouts = { fadeTimeout: ReturnType<typeof setTimeout>; removeTimeout: ReturnType<typeof setTimeout> }
 
 /**
  * Renders a marker icon with directional arrow indicator
@@ -69,8 +72,10 @@ function LegendItem({ icon, label, description }: { icon: React.ReactNode; label
  * @param props.onClick - Callback when map is clicked (receives lng/lat coordinates)
  * @param props.title - Map section title
  * @param props.subtitle - Optional subtitle text
+ * @param props.physicsLogs - Array of physics simulation logs to display as notifications
+ * @param props.onLogRemove - Callback to remove a log from the array
  */
-export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void; title?: string; subtitle?: string }) {
+export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLegend?: boolean; onClick?: (event: { lngLat: { lng: number; lat: number } }) => void; title?: string; subtitle?: string; physicsLogs?: PhysicsLog[]; onLogRemove?: (id: string) => void }) {
   const { t } = useTranslation()
   const mapRef = useRef<MapRef | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -83,6 +88,62 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
   const [showDroneTrace, setShowDroneTrace] = useState(true)
   const [showAlerts, setShowAlerts] = useState(true)
   const [droneTrace, setDroneTrace] = useState<[number, number][]>([])
+  const logTimeoutsRef = useRef<Record<string, LogTimeouts>>({})
+  const [fadingLogs, setFadingLogs] = useState<Set<string>>(new Set())
+
+  // Handle log lifecycle: fade after 3s, remove after 3.5s (3s display + 0.5s fade)
+  useEffect(() => {
+    if (props?.physicsLogs && props?.onLogRemove) {
+      const currentLogIds = new Set(props.physicsLogs.map(log => log.id))
+      
+      // Clean up timeouts for logs that are no longer in the array
+      Object.keys(logTimeoutsRef.current).forEach(logId => {
+        if (!currentLogIds.has(logId)) {
+          const timeouts = logTimeoutsRef.current[logId]
+          clearTimeout(timeouts.fadeTimeout)
+          clearTimeout(timeouts.removeTimeout)
+          delete logTimeoutsRef.current[logId]
+          setFadingLogs(prev => {
+            const next = new Set(prev)
+            next.delete(logId)
+            return next
+          })
+        }
+      })
+      
+      // Set up timeouts for new logs
+      props.physicsLogs.forEach(log => {
+        if (!logTimeoutsRef.current[log.id]) {
+          const now = Date.now()
+          const age = now - log.timestamp
+          
+          // Start fading after 3 seconds total (account for age if log is already old)
+          const fadeDelay = Math.max(0, 3000 - age)
+          const fadeTimeout = setTimeout(() => {
+            setFadingLogs(prev => new Set(prev).add(log.id))
+          }, fadeDelay)
+          
+          // Remove from array after 3.5 seconds total
+          const removeDelay = Math.max(0, 3500 - age)
+          const removeTimeout = setTimeout(() => {
+            props.onLogRemove?.(log.id)
+            delete logTimeoutsRef.current[log.id]
+            setFadingLogs(prev => {
+              const next = new Set(prev)
+              next.delete(log.id)
+              return next
+            })
+          }, removeDelay)
+          
+          logTimeoutsRef.current[log.id] = { fadeTimeout, removeTimeout }
+        }
+      })
+      
+      return () => {
+        // Cleanup happens automatically when logs are removed
+      }
+    }
+  }, [props?.physicsLogs, props?.onLogRemove])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -516,6 +577,42 @@ export function MapView(props?: { base?: MarkerData; drone?: MarkerData; showLeg
           </div>
         </>
       )}
+
+      {/* Physics Log Notifications - Bottom Right */}
+      {props?.physicsLogs && props.physicsLogs.length > 0 && (
+        <div className="absolute bottom-6 right-10 z-10 flex flex-col items-end pointer-events-none" style={{ pointerEvents: 'none' }}>
+          {props.physicsLogs.map((log) => {
+            const isFading = fadingLogs.has(log.id)
+            return (
+              <div
+                key={log.id}
+                className="text-black text-[10px] font-medium text-right transition-opacity duration-500 ease-out"
+                style={{
+                  animation: isFading ? 'none' : 'slideInUp 0.2s ease-out',
+                  opacity: isFading ? 0 : 1,
+                  textShadow: '0 1px 3px rgba(255, 255, 255, 0.8), 0 1px 2px rgba(255, 255, 255, 0.6)',
+                  pointerEvents: 'none',
+                  userSelect: 'none'
+                }}
+              >
+                {log.message}
+              </div>
+            )
+          })}
+        </div>
+      )}
+      <style>{`
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </Map>
   )
 }

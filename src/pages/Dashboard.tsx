@@ -17,11 +17,33 @@ import { calculateMapBounds } from '@/utils/map'
  * Main dashboard component for mission control
  * Displays real-time drone telemetry, map visualization, video feeds, and mission status
  */
+export type PhysicsLog = {
+  id: string
+  type: 'start' | 'bounce' | 'mode_change' | 'started_moving' | 'stopped' | 'max_speed' | 'stop'
+  message: string
+  timestamp: number
+}
+
 export function Dashboard() {
   const { t } = useTranslation()
   const [mode, setMode] = useState<'manual' | 'auto'>('auto')
   const [speedMps, setSpeedMps] = useState(0)
   const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>(null)
+  const [physicsLogs, setPhysicsLogs] = useState<PhysicsLog[]>([])
+  const addPhysicsLogRef = useRef<(type: PhysicsLog['type'], message: string) => void | undefined>(undefined)
+
+  useEffect(() => {
+    addPhysicsLogRef.current = (type: PhysicsLog['type'], message: string) => {
+      const log: PhysicsLog = {
+        id: `${Date.now()}-${Math.random()}`,
+        type,
+        message,
+        timestamp: Date.now()
+      }
+      setPhysicsLogs(prev => [...prev, log])
+      console.log('[Physics]', message)
+    }
+  }, [])
 
   // Compute factory bounds and initial center
   const { bounds, center } = useMemo(() => {
@@ -85,6 +107,10 @@ export function Dashboard() {
     let yaw = (drone.headingDegrees * Math.PI) / 180
     let velX = 0
     let velY = 0
+    let wasMoving = false
+
+    // Log drone start
+    addPhysicsLogRef.current?.('start', `Drone simulation started (${mode} mode)`)
 
     const loop = (t: number) => {
       const dt = Math.min(DRONE_PHYSICS.MAX_DELTA_TIME, (t - last) / 1000) // seconds
@@ -118,10 +144,21 @@ export function Dashboard() {
       velY = (velY + ay * scale) * DRONE_PHYSICS.DRAG
 
       const speed = Math.hypot(velX, velY)
+      const isMoving = speed > 0.000001
+      
+      // Log when drone starts/stops moving
+      if (isMoving && !wasMoving) {
+        addPhysicsLogRef.current?.('started_moving', 'Drone started moving')
+      } else if (!isMoving && wasMoving) {
+        addPhysicsLogRef.current?.('stopped', 'Drone stopped')
+      }
+      wasMoving = isMoving
+
       if (speed > DRONE_PHYSICS.MAX_SPEED) {
         const s = DRONE_PHYSICS.MAX_SPEED / speed
         velX *= s
         velY *= s
+        addPhysicsLogRef.current?.('max_speed', 'Drone reached max speed limit')
       }
 
       posLng += velX
@@ -141,10 +178,35 @@ export function Dashboard() {
 
       // Bounce on bounds in auto; clamp in manual
       if (mode === 'auto') {
-        if (posLng <= bounds.minLng + DRONE_PHYSICS.BOUNDARY_MARGIN && velX < 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
-        if (posLng >= bounds.maxLng - DRONE_PHYSICS.BOUNDARY_MARGIN && velX > 0) { velX = -velX; yaw = Math.atan2(velX, velY) }
-        if (posLat <= bounds.minLat + DRONE_PHYSICS.BOUNDARY_MARGIN && velY < 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
-        if (posLat >= bounds.maxLat - DRONE_PHYSICS.BOUNDARY_MARGIN && velY > 0) { velY = -velY; yaw = Math.atan2(velX, velY) }
+        let bounced = false
+        let bounceDirection = ''
+        if (posLng <= bounds.minLng + DRONE_PHYSICS.BOUNDARY_MARGIN && velX < 0) { 
+          velX = -velX
+          yaw = Math.atan2(velX, velY)
+          bounced = true
+          bounceDirection = 'west'
+        }
+        if (posLng >= bounds.maxLng - DRONE_PHYSICS.BOUNDARY_MARGIN && velX > 0) { 
+          velX = -velX
+          yaw = Math.atan2(velX, velY)
+          bounced = true
+          bounceDirection = 'east'
+        }
+        if (posLat <= bounds.minLat + DRONE_PHYSICS.BOUNDARY_MARGIN && velY < 0) { 
+          velY = -velY
+          yaw = Math.atan2(velX, velY)
+          bounced = true
+          bounceDirection = 'south'
+        }
+        if (posLat >= bounds.maxLat - DRONE_PHYSICS.BOUNDARY_MARGIN && velY > 0) { 
+          velY = -velY
+          yaw = Math.atan2(velX, velY)
+          bounced = true
+          bounceDirection = 'north'
+        }
+        if (bounced) {
+          addPhysicsLogRef.current?.('bounce', `Drone bounced (${bounceDirection})`)
+        }
         posLng = Math.min(bounds.maxLng, Math.max(bounds.minLng, posLng))
         posLat = Math.min(bounds.maxLat, Math.max(bounds.minLat, posLat))
       } else {
@@ -157,8 +219,20 @@ export function Dashboard() {
     }
 
     raf = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(raf)
+      addPhysicsLogRef.current?.('stop', 'Drone simulation stopped')
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode])
+
+  // Track mode changes
+  const prevModeRef = useRef(mode)
+  useEffect(() => {
+    if (prevModeRef.current !== mode) {
+      addPhysicsLogRef.current?.('mode_change', `Mode changed: ${prevModeRef.current} → ${mode}`)
+      prevModeRef.current = mode
+    }
   }, [mode])
 
   const isExpanded = expandedVideo !== null
@@ -199,6 +273,8 @@ export function Dashboard() {
               drone={drone}
               title={t('dashboard.title')}
               subtitle={t('dashboard.subtitle')}
+              physicsLogs={physicsLogs}
+              onLogRemove={(id) => setPhysicsLogs(prev => prev.filter(log => log.id !== id))}
             />
             {mode === 'manual' && (
               <div className="absolute left-2 bottom-2 select-none">
