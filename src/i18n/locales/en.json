@@ -5,7 +5,8 @@
     "alertCenter": "Alert Center",
     "fleet": "Fleet & Dock",
     "archive": "Archive",
-    "settings": "Settings"
+    "settings": "Settings",
+    "help": "Help"
   },
   "dashboard": {
     "title": "Mission Map",
@@ -177,6 +178,68 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit"
+  },
+  "help": {
+    "title": "Help & Features",
+    "subtitle": "Discover all the powerful features and capabilities of the AISP platform",
+    "missionControl": {
+      "desc": "The Mission Control dashboard provides real-time monitoring and control of drone operations.",
+      "realTimeMap": "Real-time map visualization showing drone position, heading, and flight path",
+      "videoFeeds": "Live video feeds from RGB and thermal cameras with expandable view",
+      "telemetry": "Comprehensive telemetry data including speed, altitude, battery, GPS, and signal strength",
+      "manualMode": "Manual control mode using arrow keys or on-screen controls for direct drone steering",
+      "autoMode": "Automatic mode where the drone navigates autonomously with boundary collision detection",
+      "controls": "Mission controls: Pause, Return to Home, and switch between Manual/Auto modes"
+    },
+    "missionPlanner": {
+      "desc": "Plan and manage flight routes by creating waypoints on the map.",
+      "addWaypoints": "Click on the map to add waypoints to your mission route",
+      "editWaypoints": "Edit waypoint names and reposition markers by dragging",
+      "timeline": "View mission timeline with estimated arrival times at each waypoint",
+      "saveRoute": "Save mission routes for future use"
+    },
+    "alertCenter": {
+      "desc": "Centralized hub for managing and responding to security alerts and incidents.",
+      "viewAlerts": "View all active, investigating, and resolved alerts",
+      "filter": "Filter alerts by status (Active, Investigating, Resolved) and type (Security, Fire, Intrusion, Equipment)",
+      "details": "View detailed alert information including location, timestamp, description, images, and videos",
+      "reports": "Generate PDF reports for alerts"
+    },
+    "fleet": {
+      "desc": "Monitor and manage your drone fleet and docking stations.",
+      "drones": "View status, battery level, location, and current mission for each drone",
+      "dockingStations": "Monitor docking station status, capacity, temperature, and humidity",
+      "status": "Track operational status: Active, Mission, Docked, Error, Charging, Maintenance",
+      "logs": "Access operational logs for each drone and docking station"
+    },
+    "archive": {
+      "desc": "Access historical mission data and recordings.",
+      "viewMissions": "Browse completed, failed, and cancelled missions",
+      "filter": "Filter missions by status and date range (Today, This Week, This Month, All Dates)",
+      "details": "View mission details including start/end times, duration, waypoints, and media",
+      "download": "Download mission images, videos, and operational logs"
+    },
+    "settings": {
+      "desc": "Configure application preferences and settings.",
+      "language": "Change interface language (Polish/English)",
+      "preferences": "Adjust application preferences and display options"
+    },
+    "general": {
+      "title": "General Features",
+      "map": "Interactive Map",
+      "mapDesc": "Interactive map with satellite view, controlled area boundaries, mission paths, drone traces, and alert markers. Toggle layers to customize your view.",
+      "video": "Video Feeds",
+      "videoDesc": "Live video streams from RGB (color) and thermal (infrared) cameras. Expand videos to full screen, take photos, and save video clips.",
+      "telemetry": "Real-time Telemetry",
+      "telemetryDesc": "Monitor drone data (bearing, speed, altitude, battery) and docking station information (temperature, humidity, flood status, docking status)."
+    },
+    "quickTips": {
+      "title": "Quick Tips",
+      "tip1": "Use arrow keys in Manual mode for precise drone control",
+      "tip2": "Click on the map in Mission Planner to add waypoints",
+      "tip3": "Filter alerts by type and status for faster navigation",
+      "tip4": "Expand video feeds by clicking the expand button"
+    }
   }
 }
 

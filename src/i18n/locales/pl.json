@@ -5,7 +5,8 @@
     "alertCenter": "Centrum Alarmów",
     "fleet": "Flota i Doki",
     "archive": "Archiwum",
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "help": "Pomoc"
   },
   "dashboard": {
     "title": "Mapa Misji",
@@ -177,6 +178,68 @@
     "cancel": "Anuluj",
     "delete": "Usuń",
     "edit": "Edytuj"
+  },
+  "help": {
+    "title": "Pomoc i Funkcje",
+    "subtitle": "Odkryj wszystkie potężne funkcje i możliwości platformy AISP",
+    "missionControl": {
+      "desc": "Panel kontroli misji zapewnia monitorowanie i kontrolę operacji dronów w czasie rzeczywistym.",
+      "realTimeMap": "Wizualizacja mapy w czasie rzeczywistym pokazująca pozycję drona, kierunek i trasę lotu",
+      "videoFeeds": "Transmisje na żywo z kamer RGB i termowizyjnych z możliwością rozszerzenia widoku",
+      "telemetry": "Szczegółowe dane telemetryczne, w tym prędkość, wysokość, bateria, GPS i siła sygnału",
+      "manualMode": "Tryb ręcznego sterowania przy użyciu klawiszy strzałek lub kontrolek na ekranie do bezpośredniego sterowania dronem",
+      "autoMode": "Tryb automatyczny, w którym dron nawiguje autonomicznie z wykrywaniem kolizji z granicami",
+      "controls": "Kontrolki misji: Pauza, Powrót do domu i przełączanie między trybami Manualny/Auto"
+    },
+    "missionPlanner": {
+      "desc": "Planuj i zarządzaj trasami lotu, tworząc punkty trasy na mapie.",
+      "addWaypoints": "Kliknij na mapie, aby dodać punkty trasy do misji",
+      "editWaypoints": "Edytuj nazwy punktów trasy i zmieniaj pozycje znaczników przeciągając je",
+      "timeline": "Zobacz harmonogram misji z szacowanymi czasami przybycia do każdego punktu trasy",
+      "saveRoute": "Zapisz trasy misji do późniejszego wykorzystania"
+    },
+    "alertCenter": {
+      "desc": "Centralne centrum zarządzania alarmami bezpieczeństwa i incydentami.",
+      "viewAlerts": "Zobacz wszystkie aktywne, w trakcie badania i rozwiązane alarmy",
+      "filter": "Filtruj alarmy według statusu (Aktywny, W trakcie, Rozwiązany) i typu (Bezpieczeństwo, Pożar, Wtargnięcie, Sprzęt)",
+      "details": "Zobacz szczegółowe informacje o alarmie, w tym lokalizację, znacznik czasu, opis, obrazy i wideo",
+      "reports": "Generuj raporty PDF dla alarmów"
+    },
+    "fleet": {
+      "desc": "Monitoruj i zarządzaj swoją flotą dronów i stacjami dokującymi.",
+      "drones": "Zobacz status, poziom baterii, lokalizację i aktualną misję dla każdego drona",
+      "dockingStations": "Monitoruj status stacji dokujących, pojemność, temperaturę i wilgotność",
+      "status": "Śledź status operacyjny: Aktywny, Misja, Zadokowany, Błąd, Ładowanie, Konserwacja",
+      "logs": "Uzyskaj dostęp do logów operacyjnych dla każdego drona i stacji dokującej"
+    },
+    "archive": {
+      "desc": "Uzyskaj dostęp do historycznych danych misji i nagrań.",
+      "viewMissions": "Przeglądaj ukończone, nieudane i anulowane misje",
+      "filter": "Filtruj misje według statusu i zakresu dat (Dzisiaj, Ten Tydzień, Ten Miesiąc, Wszystkie Daty)",
+      "details": "Zobacz szczegóły misji, w tym czasy rozpoczęcia/zakończenia, czas trwania, punkty trasy i media",
+      "download": "Pobierz obrazy, wideo i logi operacyjne misji"
+    },
+    "settings": {
+      "desc": "Skonfiguruj preferencje i ustawienia aplikacji.",
+      "language": "Zmień język interfejsu (Polski/Angielski)",
+      "preferences": "Dostosuj preferencje aplikacji i opcje wyświetlania"
+    },
+    "general": {
+      "title": "Ogólne Funkcje",
+      "map": "Interaktywna Mapa",
+      "mapDesc": "Interaktywna mapa z widokiem satelitarnym, granicami obszaru kontrolowanego, trasami misji, śladami drona i znacznikami alarmów. Przełączaj warstwy, aby dostosować widok.",
+      "video": "Transmisje Wideo",
+      "videoDesc": "Transmisje na żywo z kamer RGB (kolor) i termowizyjnych (podczerwień). Rozszerzaj wideo na pełny ekran, rób zdjęcia i zapisuj klipy wideo.",
+      "telemetry": "Telemetria w Czasie Rzeczywistym",
+      "telemetryDesc": "Monitoruj dane drona (kierunek, prędkość, wysokość, bateria) i informacje o stacji dokującej (temperatura, wilgotność, status powodzi, status dokowania)."
+    },
+    "quickTips": {
+      "title": "Szybkie Wskazówki",
+      "tip1": "Użyj klawiszy strzałek w trybie Manualnym do precyzyjnego sterowania dronem",
+      "tip2": "Kliknij na mapie w Planiście Misji, aby dodać punkty trasy",
+      "tip3": "Filtruj alarmy według typu i statusu dla szybszej nawigacji",
+      "tip4": "Rozszerz transmisje wideo, klikając przycisk rozszerzania"
+    }
   }
 }
 

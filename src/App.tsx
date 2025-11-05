@@ -2,7 +2,7 @@ import { type ReactElement } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import './App.css'
-import { Rocket, MapPin, AlertTriangle, Drone, Archive, Settings } from 'lucide-react'
+import { Rocket, MapPin, AlertTriangle, Drone, Archive, Settings, HelpCircle } from 'lucide-react'
 import { NavButton } from '@/components/NavButton'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AlertOverlay } from '@/components/AlertOverlay'
@@ -12,6 +12,7 @@ import { AlertCenter } from '@/pages/AlertCenter'
 import { FleetManagement } from '@/pages/FleetManagement'
 import { Archive as ArchivePage } from '@/pages/Archive'
 import { Settings as SettingsPage } from '@/pages/Settings'
+import { Help } from '@/pages/Help'
 
 type NavItem = {
   path: string
@@ -53,6 +54,11 @@ function App() {
       labelKey: 'nav.settings',
       icon: <Settings className="w-5 h-5" />,
     },
+    {
+      path: '/help',
+      labelKey: 'nav.help',
+      icon: <HelpCircle className="w-5 h-5" />,
+    },
   ]
 
   return (
@@ -79,6 +85,7 @@ function App() {
             <Route path="/fleet" element={<FleetManagement />} />
             <Route path="/archive" element={<ArchivePage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/help" element={<Help />} />
           </Routes>
         </ErrorBoundary>
       </div>
