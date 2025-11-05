@@ -56,3 +56,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes pulseBorder {
+  0% {
+    border-width: 8px;
+    border-color: rgba(239, 68, 68, 1);
+    opacity: 1;
+  }
+  50% {
+    border-width: 16px;
+    border-color: rgba(239, 68, 68, 0.6);
+    opacity: 0.8;
+  }
+  100% {
+    border-width: 8px;
+    border-color: rgba(239, 68, 68, 1);
+    opacity: 1;
+  }
+}

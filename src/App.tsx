@@ -5,6 +5,7 @@ import './App.css'
 import { Rocket, MapPin, AlertTriangle, Drone, Archive, Settings } from 'lucide-react'
 import { NavButton } from '@/components/NavButton'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { AlertOverlay } from '@/components/AlertOverlay'
 import { Dashboard } from '@/pages/Dashboard'
 import { MissionPlanner } from '@/pages/MissionPlanner'
 import { AlertCenter } from '@/pages/AlertCenter'
@@ -81,6 +82,7 @@ function App() {
           </Routes>
         </ErrorBoundary>
       </div>
+      <AlertOverlay />
     </div>
   )
 }
