@@ -7,6 +7,7 @@ import { TelemetryCard } from '@/components/TelemetryCard'
 import { TelemetryHeaderItem } from '@/components/TelemetryHeaderItem'
 import { MapView, MarkerIcon } from '@/components/MapView'
 import { OperationalLog } from '@/components/OperationalLog'
+import { MissionProgress } from '@/components/MissionProgress'
 import factoryPolygon from '../tesla.json'
 import type { Feature, Polygon } from 'geojson'
 import { DRONE_PHYSICS, GEO_CONVERSION } from '@/constants'
@@ -261,7 +262,7 @@ export function Dashboard() {
       {/* Sidebar - shows VideoSections or MapView when expanded */}
       <div className="w-140 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
         {expandedVideo === 'rgb' ? (
-          <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
+          <div className="border-b border-gray-200 overflow-hidden relative aspect-video w-full">
             <MapView 
               base={base} 
               drone={drone} 
@@ -281,7 +282,7 @@ export function Dashboard() {
           />
         )}
         {expandedVideo === 'thermal' ? (
-          <div className="flex-1 flex flex-col border-b border-gray-200 overflow-hidden relative">
+          <div className="border-b border-gray-200 overflow-hidden relative aspect-video w-full">
             <MapView 
               base={base} 
               drone={drone} 
@@ -394,14 +395,22 @@ export function Dashboard() {
             <OperationalLog missionId="current" />
             {/* Mission Status (auto) or Instructions (manual) */}
             {mode === 'auto' ? (
-              <div className="bg-gray-50 p-1 py-2 rounded border border-gray-200">
-                <div className="flex items-center gap-1 justify-between mb-0.5">
+              <div className="bg-gray-50 p-1.5 pb-4 rounded border border-gray-200">
+                <div className="flex items-center gap-1 justify-between mb-2">
                   <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.missionStatus')}</div>
                   <div className="text-[9px] text-gray-500 uppercase tracking-wide">{t('dashboard.inProgress')} (43%)</div>
                 </div>
-                <div className="h-2 bg-gray-200 rounded">
-                  <div className="h-2 bg-blue-500 rounded" style={{ width: '43%' }}></div>
-                </div>
+                {/* Progress Visualization: Start -> Waypoints -> Landing/Docking */}
+                <MissionProgress
+                  progress={0.43}
+                  stages={[
+                    t('dashboard.start'),
+                    `${t('dashboard.waypoint')} 1`,
+                    `${t('dashboard.waypoint')} 2`,
+                    `${t('dashboard.waypoint')} 3`,
+                    t('dashboard.docking')
+                  ]}
+                />
               </div>
             ) : (
               <div className="bg-gray-50 p-1 py-2 rounded border border-gray-200">
