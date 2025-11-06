@@ -6,6 +6,7 @@ import { Rocket, MapPin, AlertTriangle, Drone, Archive, Settings, HelpCircle } f
 import { NavButton } from '@/components/NavButton'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AlertOverlay } from '@/components/AlertOverlay'
+import { SmartDronesLogo } from '@/components/SmartDronesLogo'
 import { Dashboard } from '@/pages/Dashboard'
 import { MissionPlanner } from '@/pages/MissionPlanner'
 import { AlertCenter } from '@/pages/AlertCenter'
@@ -73,6 +74,12 @@ function App() {
               icon={item.icon}
             />
           ))}
+        </div>
+        <div className="p-2 border-t border-gray-800 flex items-center justify-center overflow-visible aspect-square">
+          <img src="/logo.png" className="invert brightness-0 opacity-80" />
+        </div>
+        <div className="p-2 border-t border-gray-800 flex items-center justify-center overflow-visible">
+          <SmartDronesLogo />
         </div>
       </nav>
       

@@ -28,7 +28,7 @@ export function Dashboard() {
   const { t } = useTranslation()
   const [mode, setMode] = useState<'manual' | 'auto'>('auto')
   const [speedMps, setSpeedMps] = useState(0)
-  const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>(null)
+  const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>('rgb')
   const [physicsLogs, setPhysicsLogs] = useState<PhysicsLog[]>([])
   const addPhysicsLogRef = useRef<(type: PhysicsLog['type'], message: string) => void | undefined>(undefined)
 
