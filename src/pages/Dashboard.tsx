@@ -28,7 +28,7 @@ export function Dashboard() {
   const { t } = useTranslation()
   const [mode, setMode] = useState<'manual' | 'auto'>('auto')
   const [speedMps, setSpeedMps] = useState(0)
-  const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>('rgb')
+  const [expandedVideo, setExpandedVideo] = useState<'rgb' | 'thermal' | null>(null)
   const [physicsLogs, setPhysicsLogs] = useState<PhysicsLog[]>([])
   const addPhysicsLogRef = useRef<(type: PhysicsLog['type'], message: string) => void | undefined>(undefined)
 
@@ -145,7 +145,7 @@ export function Dashboard() {
 
       const speed = Math.hypot(velX, velY)
       const isMoving = speed > 0.000001
-      
+
       // Log when drone starts/stops moving
       if (isMoving && !wasMoving) {
         addPhysicsLogRef.current?.('started_moving', 'Drone started moving')
@@ -180,25 +180,25 @@ export function Dashboard() {
       if (mode === 'auto') {
         let bounced = false
         let bounceDirection = ''
-        if (posLng <= bounds.minLng + DRONE_PHYSICS.BOUNDARY_MARGIN && velX < 0) { 
+        if (posLng <= bounds.minLng + DRONE_PHYSICS.BOUNDARY_MARGIN && velX < 0) {
           velX = -velX
           yaw = Math.atan2(velX, velY)
           bounced = true
           bounceDirection = 'west'
         }
-        if (posLng >= bounds.maxLng - DRONE_PHYSICS.BOUNDARY_MARGIN && velX > 0) { 
+        if (posLng >= bounds.maxLng - DRONE_PHYSICS.BOUNDARY_MARGIN && velX > 0) {
           velX = -velX
           yaw = Math.atan2(velX, velY)
           bounced = true
           bounceDirection = 'east'
         }
-        if (posLat <= bounds.minLat + DRONE_PHYSICS.BOUNDARY_MARGIN && velY < 0) { 
+        if (posLat <= bounds.minLat + DRONE_PHYSICS.BOUNDARY_MARGIN && velY < 0) {
           velY = -velY
           yaw = Math.atan2(velX, velY)
           bounced = true
           bounceDirection = 'south'
         }
-        if (posLat >= bounds.maxLat - DRONE_PHYSICS.BOUNDARY_MARGIN && velY > 0) { 
+        if (posLat >= bounds.maxLat - DRONE_PHYSICS.BOUNDARY_MARGIN && velY > 0) {
           velY = -velY
           yaw = Math.atan2(velX, velY)
           bounced = true
@@ -223,7 +223,7 @@ export function Dashboard() {
       cancelAnimationFrame(raf)
       addPhysicsLogRef.current?.('stop', 'Drone simulation stopped')
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode])
 
   // Track mode changes
@@ -235,149 +235,129 @@ export function Dashboard() {
     }
   }, [mode])
 
-  const isExpanded = expandedVideo !== null
+  const isExpanded = expandedVideo !== null;
+
+  if (isExpanded) {
+    return (
+      <>
+          {expandedVideo === 'rgb' && (
+            <VideoSection
+              title={t('dashboard.rgbCamera')}
+              subtitle={t('dashboard.rgbSubtitle')}
+              src="/rgb.mp4"
+              isExpanded={true}
+              onExpand={() => setExpandedVideo(null)}
+              onTakePhoto={() => { }}
+              onSaveClip={() => { }}
+            />
+          )}
+          {expandedVideo === 'thermal' && (
+            <VideoSection
+              title={t('dashboard.thermalCamera')}
+              subtitle={t('dashboard.thermalSubtitle')}
+              src="/rgb.mp4"
+              filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
+              isExpanded={true}
+              onExpand={() => setExpandedVideo(null)}
+              onTakePhoto={() => { }}
+              onSaveClip={() => { }}
+            />
+          )}
+        </>
+    )
+  }
 
   return (
     <>
-      {/* Center area - shows MapView or expanded VideoSection */}
-      <div className="flex-1 relative">
-        {isExpanded ? (
-          <div className="w-full h-full flex flex-col bg-black">
-            {expandedVideo === 'rgb' ? (
-              <VideoSection 
-                title={t('dashboard.rgbCamera')} 
-                subtitle={t('dashboard.rgbSubtitle')} 
-                src="/rgb.mp4"
-                onExpand={() => setExpandedVideo(null)}
-                isExpanded={true}
-                onTakePhoto={() => {}}
-                onSaveClip={() => {}}
-              />
-            ) : (
-              <VideoSection 
-                title={t('dashboard.thermalCamera')} 
-                subtitle={t('dashboard.thermalSubtitle')} 
-                src="/rgb.mp4" 
-                filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
-                onExpand={() => setExpandedVideo(null)}
-                isExpanded={true}
-                onTakePhoto={() => {}}
-                onSaveClip={() => {}}
-              />
-            )}
-          </div>
-        ) : (
-          <>
-            <MapView 
-              base={base} 
-              drone={drone}
-              title={t('dashboard.title')}
-              subtitle={t('dashboard.subtitle')}
-              physicsLogs={physicsLogs}
-              onLogRemove={(id) => setPhysicsLogs(prev => prev.filter(log => log.id !== id))}
-            />
-            {mode === 'manual' && (
-              <div className="absolute left-2 bottom-2 select-none">
-                <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
-                  <div className="grid grid-cols-3 gap-1">
-                    <div />
-                    <button
-                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                      onPointerDown={(e) => { e.preventDefault(); keys.current.up = true }}
-                      onPointerUp={(e) => { e.preventDefault(); keys.current.up = false }}
-                      onPointerLeave={() => { keys.current.up = false }}
-                      aria-label={t('dashboard.forward')}
-                      title={t('dashboard.forward')}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-                    </button>
-                    <div />
+      <div className="flex-1 relative flex flex-col">
+        <VideoSection
+          title={t('dashboard.rgbCamera')}
+          subtitle={t('dashboard.rgbSubtitle')}
+          src="/rgb.mp4"
+          onExpand={() => setExpandedVideo('rgb')}
+          onTakePhoto={() => { }}
+          onSaveClip={() => { }}
+        />
+        <VideoSection
+          title={t('dashboard.thermalCamera')}
+          subtitle={t('dashboard.thermalSubtitle')}
+          src="/rgb.mp4"
+          filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
+          onExpand={() => setExpandedVideo('thermal')}
+          onTakePhoto={() => { }}
+          onSaveClip={() => { }}
+        />
+        
+        {!isExpanded && mode === 'manual' && (
+          <div className="absolute left-2 bottom-2 select-none">
+            <div className="bg-white/80 backdrop-blur rounded-md p-1 shadow border border-gray-200">
+              <div className="grid grid-cols-3 gap-1">
+                <div />
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.up = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.up = false }}
+                  onPointerLeave={() => { keys.current.up = false }}
+                  aria-label={t('dashboard.forward')}
+                  title={t('dashboard.forward')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                </button>
+                <div />
 
-                    <button
-                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                      onPointerDown={(e) => { e.preventDefault(); keys.current.left = true }}
-                      onPointerUp={(e) => { e.preventDefault(); keys.current.left = false }}
-                      onPointerLeave={() => { keys.current.left = false }}
-                      aria-label={t('dashboard.turnLeft')}
-                      title={t('dashboard.turnLeft')}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h13"/><path d="m11 5-7 7 7 7"/></svg>
-                    </button>
-                    <div className="h-9 w-9" />
-                    <button
-                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                      onPointerDown={(e) => { e.preventDefault(); keys.current.right = true }}
-                      onPointerUp={(e) => { e.preventDefault(); keys.current.right = false }}
-                      onPointerLeave={() => { keys.current.right = false }}
-                      aria-label={t('dashboard.turnRight')}
-                      title={t('dashboard.turnRight')}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12h13"/><path d="m13 5 7 7-7 7"/></svg>
-                    </button>
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.left = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.left = false }}
+                  onPointerLeave={() => { keys.current.left = false }}
+                  aria-label={t('dashboard.turnLeft')}
+                  title={t('dashboard.turnLeft')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h13"/><path d="m11 5-7 7 7 7"/></svg>
+                </button>
+                <div className="h-9 w-9" />
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.right = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.right = false }}
+                  onPointerLeave={() => { keys.current.right = false }}
+                  aria-label={t('dashboard.turnRight')}
+                  title={t('dashboard.turnRight')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 12h13"/><path d="m13 5 7 7-7 7"/></svg>
+                </button>
 
-                    <div />
-                    <button
-                      className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
-                      onPointerDown={(e) => { e.preventDefault(); keys.current.down = true }}
-                      onPointerUp={(e) => { e.preventDefault(); keys.current.down = false }}
-                      onPointerLeave={() => { keys.current.down = false }}
-                      aria-label={t('dashboard.backward')}
-                      title={t('dashboard.backward')}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-                    </button>
-                    <div />
-                  </div>
-                </div>
+                <div />
+                <button
+                  className="h-9 w-9 rounded bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center"
+                  onPointerDown={(e) => { e.preventDefault(); keys.current.down = true }}
+                  onPointerUp={(e) => { e.preventDefault(); keys.current.down = false }}
+                  onPointerLeave={() => { keys.current.down = false }}
+                  aria-label={t('dashboard.backward')}
+                  title={t('dashboard.backward')}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                </button>
+                <div />
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
       </div>
-      
+
       {/* Sidebar - shows VideoSections or MapView when expanded */}
-      <div className="w-140 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
-        {expandedVideo === 'rgb' ? (
-          <div className="border-b border-gray-200 overflow-hidden relative aspect-video w-full">
-            <MapView 
-              base={base} 
-              drone={drone} 
-              showLegend={false}
-              title={t('dashboard.title')}
-              subtitle={t('dashboard.subtitle')}
-            />
-          </div>
-        ) : (
-          <VideoSection 
-            title={t('dashboard.rgbCamera')} 
-            subtitle={t('dashboard.rgbSubtitle')} 
-            src="/rgb.mp4"
-            onExpand={() => setExpandedVideo('rgb')}
-            onTakePhoto={() => {}}
-            onSaveClip={() => {}}
+      <div className="w-184 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
+        <div className="border-b border-gray-200 overflow-hidden relative aspect-video w-full">
+          <MapView
+            base={base}
+            drone={drone}
+            showLegend={false}
+            title={t('dashboard.title')}
+            subtitle={t('dashboard.subtitle')}
+            physicsLogs={physicsLogs}
+            onLogRemove={(id) => setPhysicsLogs(prev => prev.filter(log => log.id !== id))}
           />
-        )}
-        {expandedVideo === 'thermal' ? (
-          <div className="border-b border-gray-200 overflow-hidden relative aspect-video w-full">
-            <MapView 
-              base={base} 
-              drone={drone} 
-              showLegend={false}
-              title={t('dashboard.title')}
-              subtitle={t('dashboard.subtitle')}
-            />
-          </div>
-        ) : (
-          <VideoSection 
-            title={t('dashboard.thermalCamera')} 
-            subtitle={t('dashboard.thermalSubtitle')} 
-            src="/rgb.mp4" 
-            filter="invert(1) sepia(1) saturate(6) hue-rotate(200deg) contrast(1.2) brightness(1.1)"
-            onExpand={() => setExpandedVideo('thermal')}
-            onTakePhoto={() => {}}
-            onSaveClip={() => {}}
-          />
-        )}
+        </div>
 
         {/* Section 3: Drone Telemetry - Scrollable */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
