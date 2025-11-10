@@ -46,7 +46,168 @@
     "expandVideo": "Expand video",
     "collapseVideo": "Collapse video",
     "takePhoto": "Take photo",
-    "saveClip": "Save clip"
+    "saveClip": "Save clip",
+    "telemetryTiles": {
+      "time": {
+        "lessThanMinute": "<1 min",
+        "minutes": "{{count}} min",
+        "notAvailable": "—"
+      },
+      "status": {
+        "ready": "Ready"
+      },
+      "battery": {
+        "title": "Battery",
+        "labels": {
+          "charge": "Charge %",
+          "cellTemp": "Cell temp",
+          "etaFull": "ETA to full"
+        },
+        "tooltip": {
+          "green": "Nominal: charge {{charge}}% and cell temperature {{temp}}°C.",
+          "yellow": "Caution: charge {{charge}}% (target >60%). Cell temperature {{temp}}°C.",
+          "red": "Critical: charge {{charge}}% and cell temperature {{temp}}°C (needs ≥30% and 10–45°C)."
+        }
+      },
+      "flight": {
+        "title": "Position / Flight",
+        "labels": {
+          "altitude": "Altitude (AGL)",
+          "speedHv": "Speed H/V",
+          "heading": "Heading"
+        }
+      },
+      "links": {
+        "title": "Links",
+        "labels": {
+          "controlLatency": "Control latency",
+          "videoBitrate": "Video bitrate"
+        },
+        "tooltip": {
+          "green": {
+            "nominal": "Nominal link quality. Latency {{latency}} ms, video {{bitrate}} Mb/s."
+          },
+          "yellow": {
+            "latency": "Caution: latency {{latency}} ms (100–250 ms band).",
+            "bitrate": "Caution: video bitrate {{bitrate}} Mb/s (2–6 Mb/s band)."
+          },
+          "red": {
+            "latency": "Critical: latency {{latency}} ms exceeds 250 ms limit.",
+            "bitrate": "Critical: video bitrate {{bitrate}} Mb/s below 2 Mb/s.",
+            "offline": "Critical: all links offline."
+          }
+        }
+      },
+      "gnss": {
+        "title": "GNSS",
+        "labels": {
+          "status": "RTK status",
+          "satellites": "Satellites",
+          "hdop": "HDOP"
+        },
+        "tooltip": "GNSS: {{status}} with {{satellites}} satellites, HDOP {{hdop}}."
+      },
+      "mission": {
+        "title": "Mission / ETA",
+        "labels": {
+          "name": "Mission",
+          "step": "Current step",
+          "etaDock": "ETA to dock"
+        },
+        "tooltip": {
+          "complete": "Mission complete. Ready for redeployment.",
+          "progress": "Mission {{name}} at {{percent}}%. ETA to dock {{eta}}."
+        }
+      },
+      "power": {
+        "title": "Power",
+        "labels": {
+          "source": "Source",
+          "ups": "UPS",
+          "fault": "Fault"
+        },
+        "values": {
+          "grid": "Grid",
+          "ups": "UPS",
+          "upsActive": "Active {{level}}% ({{eta}})",
+          "upsStandby": "Standby {{level}}%",
+          "fault": {
+            "active": "Active",
+            "none": "None"
+          }
+        },
+        "tooltip": {
+          "green": "Running on grid power. UPS standby {{level}}%.",
+          "yellow": "Running on UPS ({{level}}% remaining, {{eta}}).",
+          "red": {
+            "fault": "Critical: fault active. UPS at {{level}}% ({{eta}}).",
+            "lowUps": "Critical: UPS at {{level}}% ({{eta}})."
+          }
+        }
+      },
+      "connectivity": {
+        "title": "Connectivity",
+        "labels": {
+          "ethernet": "Ethernet",
+          "lte": "LTE",
+          "rtt": "RTT"
+        },
+        "values": {
+          "online": "Online",
+          "offline": "Offline"
+        },
+        "tooltip": {
+          "green": "Nominal connectivity. Latency {{latency}} ms.",
+          "yellowLatency": "Caution: latency {{latency}} ms (100–250 ms).",
+          "redLatency": "Critical: latency {{latency}} ms exceeds 250 ms.",
+          "offline": "Critical: all network links offline."
+        }
+      },
+      "rtk": {
+        "title": "RTK",
+        "labels": {
+          "status": "Status",
+          "satellites": "Satellites",
+          "hdop": "HDOP"
+        },
+        "tooltip": {
+          "green": "RTK fix with {{satellites}} sats, HDOP {{hdop}}.",
+          "yellow": "Caution: RTK float. {{satellites}} sats, HDOP {{hdop}}.",
+          "red": "Critical: RTK status {{status}}."
+        }
+      },
+      "weather": {
+        "title": "Weather",
+        "labels": {
+          "wind": "Wind",
+          "precipitation": "Precipitation"
+        },
+        "tooltip": {
+          "green": "Dock weather nominal: average {{avg}} m/s, gust {{gust}} m/s, precipitation {{precipitation}}.",
+          "yellow": "Caution wind: average {{avg}} m/s, gust {{gust}} m/s (8–12 m/s).",
+          "red": "Critical wind: average {{avg}} m/s, gust {{gust}} m/s (>12 m/s)."
+        }
+      },
+      "dock": {
+        "title": "Dock",
+        "labels": {
+          "hatch": "Hatch",
+          "docked": "Docked",
+          "charging": "Charging"
+        },
+        "hatch": {
+          "closed": "Closed",
+          "open": "Open",
+          "in_motion": "In motion"
+        },
+        "chargingActive": "Charging {{level}}% ({{eta}})",
+        "chargingIdle": "Idle",
+        "tooltip": {
+          "green": "Dock nominal: hatch {{hatch}}, docked {{docked}}, charging {{charging}}.",
+          "red": "Dock alert: hatch {{hatch}}, docked {{docked}}, charging {{charging}}."
+        }
+      }
+    }
   },
   "alertCenter": {
     "title": "Alert Center",
@@ -177,7 +338,9 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "yes": "Yes",
+    "no": "No"
   },
   "help": {
     "title": "Help & Features",
