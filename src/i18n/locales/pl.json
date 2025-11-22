@@ -345,63 +345,149 @@
   "help": {
     "title": "Pomoc i Funkcje",
     "subtitle": "Odkryj wszystkie potężne funkcje i możliwości platformy AISP",
-    "missionControl": {
-      "desc": "Panel kontroli misji zapewnia monitorowanie i kontrolę operacji dronów w czasie rzeczywistym.",
-      "realTimeMap": "Wizualizacja mapy w czasie rzeczywistym pokazująca pozycję drona, kierunek i trasę lotu",
-      "videoFeeds": "Transmisje na żywo z kamer RGB i termowizyjnych z możliwością rozszerzenia widoku",
-      "telemetry": "Szczegółowe dane telemetryczne, w tym prędkość, wysokość, bateria, GPS i siła sygnału",
-      "manualMode": "Tryb ręcznego sterowania przy użyciu klawiszy strzałek lub kontrolek na ekranie do bezpośredniego sterowania dronem",
-      "autoMode": "Tryb automatyczny, w którym dron nawiguje autonomicznie z wykrywaniem kolizji z granicami",
-      "controls": "Kontrolki misji: Pauza, Powrót do domu i przełączanie między trybami Manualny/Auto"
+    "dashboard": {
+      "sections": {
+        "overview": {
+          "title": "Przegląd pulpitu misji",
+          "description": "Pulpit łączy na jednym ekranie wideo na żywo, kontekst mapy, telemetrykę i kontrolę misji, dzięki czemu operator może prowadzić misję bez przełączania zakładek.",
+          "items": {
+            "video": "Obserwuj równolegle podgląd RGB i termowizyjny, rozszerzaj dowolny widok na pełny ekran i zapisuj klatki jako dowody.",
+            "map": "Korzystaj z mapy, aby śledzić pozycję drona i bazy, kontrolować geofencing oraz analizować logi fizyki lotu.",
+            "mode": "Przełączaj tryb automatyczny i ręczny. Tryb ręczny udostępnia sterowanie klawiaturą oraz panel ekranowy do precyzyjnych korekt."
+          }
+        },
+        "telemetry": {
+          "title": "Telemetria i kondycja systemu",
+          "description": "Pogrupowane kafelki telemetryczne pokazują na bieżąco stan zasilania, lotu, łączności, GNSS, pogody i stacji dokującej, ułatwiając ocenę gotowości.",
+          "items": {
+            "tiles": "Kolorowe statusy kafelków akcentują zasilanie, łączność, nawigację, postęp misji i mechanikę doku. Najedź kursorem, aby poznać progi i ostatnie zdarzenia.",
+            "flight": "Monitoruj wysokość, kurs, prędkość poziomą i pionową oraz blokadę GNSS. ETA misji aktualizuje się w czasie rzeczywistym.",
+            "alerts": "Gdy wartości wykraczają poza normy, kafelki zmieniają kolor na żółty lub czerwony, co pomaga priorytetyzować działania."
+          }
+        },
+        "timeline": {
+          "title": "Oś misji i logi",
+          "description": "Status misji, logi fizyki i dziennik operacyjny znajdują się w prawej kolumnie. Korzystaj z nich, aby odtwarzać przebieg i dokumentować odchylenia.",
+          "items": {
+            "progress": "Postęp misji podkreśla bieżący etap i kolejne kroki. W trybie auto widoczny jest pasek procentowy, a w trybie manualnym – instrukcje na żywo.",
+            "log": "Dziennik operacyjny zapisuje zmiany trybów, akcje dokowania i notatki operatora, zapewniając materiał do audytu.",
+            "physics": "Wpisy fizyki sygnalizują maksymalne prędkości, odbicia od granic i zmiany ruchu, pomagając wyjaśnić nietypowe zachowanie."
+          }
+        },
+        "controls": {
+          "title": "Narzędzia sterowania ręcznego",
+          "description": "Po przełączeniu na tryb manualny pulpit udostępnia skróty klawiaturowe i przyciski ekranowe, by pilot mógł sterować bez opuszczania widoku misji.",
+          "items": {
+            "keyboard": "Użyj klawiszy strzałek do regulacji ciągu i rotacji. Panel ekranowy odwzorowuje naciśnięcia i blokuje przejęcie fokusu przez mapę.",
+            "actions": "Z poziomu panelu sterowania wstrzymasz misję, wywołasz powrót do domu oraz zmienisz tryb między auto i manualnym.",
+            "safety": "Ograniczenia geofencingu utrzymują drona w wyznaczonym obszarze. Banery statusu potwierdzają zadokowanie przed powrotem do trybu auto."
+          }
+        }
+      },
+      "quickstart": {
+        "title": "Szybki start pulpitu",
+        "cards": {
+          "layout": {
+            "title": "Poznaj układ",
+            "description": "Lewa kolumna to transmisje wideo. Prawa kolumna prezentuje mapę, telemetrykę, postęp misji i logi, dopasowując się do aktualnego trybu."
+          },
+          "video": {
+            "title": "Opanuj narzędzia wideo",
+            "description": "Rozszerzaj podgląd do inspekcji detali, a następnie wracaj do widoku porównawczego. Używaj przycisków zrzutu, aby gromadzić materiał w locie."
+          },
+          "telemetry": {
+            "title": "Kontroluj telemetrykę w kontekście",
+            "description": "Najedź na kafelek, aby zobaczyć objaśnienie. Wartości zawierają wskazówki pomocne przy briefingu zespołu lub przygotowaniu raportu."
+          }
+        }
+      },
+      "quickTips": {
+        "title": "Szybkie wskazówki dla operatorów",
+        "items": [
+          "Przed wydrukiem lub zrzutem ekranu rozszerz wybrane wideo, aby ukryć zbędny interfejs.",
+          "Przełącz tryb manualny dla precyzyjnego pozycjonowania — klawisze strzałek i panel ekranowy działają nawet przy aktywnej mapie.",
+          "Żółte i czerwone kafelki traktuj jako wezwanie do działania: najedź, aby poznać próg i zalecane kroki.",
+          "Po locie skopiuj kluczowe wpisy z dziennika operacyjnego, tworząc załącznik do raportu misji.",
+          "Legendę mapy wykorzystaj do potwierdzenia granic przestrzeni powietrznej przed zgodą na lot ręczny."
+        ]
+      },
+      "guides": {
+        "title": "Przewodniki krok po kroku",
+        "intro": "Skorzystaj z tych list kontrolnych, aby przygotować, nadzorować i zamknąć każdą misję.",
+        "preFlight": {
+          "title": "Przygotowanie przed lotem",
+          "description": "Zrealizuj te kontrole przed uzbrojeniem misji.",
+          "steps": [
+            "Sprawdź obecność strumieni wideo i na chwilę rozszerz każdy, by ocenić jakość.",
+            "Przejrzyj geofencing na mapie oraz planowaną trasę pod kątem przeszkód i stref zakazu.",
+            "Zweryfikuj, czy kafelki telemetryczne świecą na zielono; rozwiąż żółte/czerwone alerty, zwłaszcza zasilania i łączności.",
+            "Upewnij się, że dok ma zamkniętą pokrywę, zakończone ładowanie i właściwie wybraną misję."
+          ]
+        },
+        "onMission": {
+          "title": "Podczas misji",
+          "description": "Monitoruj systemy na żywo w trakcie lotu.",
+          "steps": [
+            "Przypnij kartę postępu, aby śledzić etap misji i przewidywany czas zakończenia.",
+            "Reaguj na zmiany statusów, najeżdżając na kafelki i analizując podpowiedzi.",
+            "W razie pogorszenia pogody lub łączności użyj panelu sterowania, by wstrzymać lot lub wrócić do domu.",
+            "Notuj istotne zdarzenia w dzienniku operacyjnym, by zespół zmianowy miał ten sam kontekst."
+          ]
+        },
+        "postFlight": {
+          "title": "Zamknięcie po locie",
+          "description": "Utrwal wnioski i zarchiwizuj dane.",
+          "steps": [
+            "Po zadokowaniu przełącz z powrotem na tryb auto i potwierdź wznowienie ładowania.",
+            "Jeżeli potrzebujesz dowodów, pobierz obrazy lub klipy bezpośrednio z rozszerzonego widoku wideo.",
+            "Wyeksportuj odpowiednie logi i dołącz je do raportu misji w Archiwum.",
+            "Zresetuj alerty i sprawdź, czy wszystkie kafelki wróciły do nominalnych wartości przed zamknięciem sesji."
+          ]
+        }
+      },
+      "printNote": "Widok wydruku ukrywa nawigację i pozostawia wyłącznie treści tej podstrony pomocy."
     },
-    "missionPlanner": {
-      "desc": "Planuj i zarządzaj trasami lotu, tworząc punkty trasy na mapie.",
-      "addWaypoints": "Kliknij na mapie, aby dodać punkty trasy do misji",
-      "editWaypoints": "Edytuj nazwy punktów trasy i zmieniaj pozycje znaczników przeciągając je",
-      "timeline": "Zobacz harmonogram misji z szacowanymi czasami przybycia do każdego punktu trasy",
-      "saveRoute": "Zapisz trasy misji do późniejszego wykorzystania"
-    },
-    "alertCenter": {
-      "desc": "Centralne centrum zarządzania alarmami bezpieczeństwa i incydentami.",
-      "viewAlerts": "Zobacz wszystkie aktywne, w trakcie badania i rozwiązane alarmy",
-      "filter": "Filtruj alarmy według statusu (Aktywny, W trakcie, Rozwiązany) i typu (Bezpieczeństwo, Pożar, Wtargnięcie, Sprzęt)",
-      "details": "Zobacz szczegółowe informacje o alarmie, w tym lokalizację, znacznik czasu, opis, obrazy i wideo",
-      "reports": "Generuj raporty PDF dla alarmów"
-    },
-    "fleet": {
-      "desc": "Monitoruj i zarządzaj swoją flotą dronów i stacjami dokującymi.",
-      "drones": "Zobacz status, poziom baterii, lokalizację i aktualną misję dla każdego drona",
-      "dockingStations": "Monitoruj status stacji dokujących, pojemność, temperaturę i wilgotność",
-      "status": "Śledź status operacyjny: Aktywny, Misja, Zadokowany, Błąd, Ładowanie, Konserwacja",
-      "logs": "Uzyskaj dostęp do logów operacyjnych dla każdego drona i stacji dokującej"
-    },
-    "archive": {
-      "desc": "Uzyskaj dostęp do historycznych danych misji i nagrań.",
-      "viewMissions": "Przeglądaj ukończone, nieudane i anulowane misje",
-      "filter": "Filtruj misje według statusu i zakresu dat (Dzisiaj, Ten Tydzień, Ten Miesiąc, Wszystkie Daty)",
-      "details": "Zobacz szczegóły misji, w tym czasy rozpoczęcia/zakończenia, czas trwania, punkty trasy i media",
-      "download": "Pobierz obrazy, wideo i logi operacyjne misji"
-    },
-    "settings": {
-      "desc": "Skonfiguruj preferencje i ustawienia aplikacji.",
-      "language": "Zmień język interfejsu (Polski/Angielski)",
-      "preferences": "Dostosuj preferencje aplikacji i opcje wyświetlania"
-    },
-    "general": {
-      "title": "Ogólne Funkcje",
-      "map": "Interaktywna Mapa",
-      "mapDesc": "Interaktywna mapa z widokiem satelitarnym, granicami obszaru kontrolowanego, trasami misji, śladami drona i znacznikami alarmów. Przełączaj warstwy, aby dostosować widok.",
-      "video": "Transmisje Wideo",
-      "videoDesc": "Transmisje na żywo z kamer RGB (kolor) i termowizyjnych (podczerwień). Rozszerzaj wideo na pełny ekran, rób zdjęcia i zapisuj klipy wideo.",
-      "telemetry": "Telemetria w Czasie Rzeczywistym",
-      "telemetryDesc": "Monitoruj dane drona (kierunek, prędkość, wysokość, bateria) i informacje o stacji dokującej (temperatura, wilgotność, status powodzi, status dokowania)."
-    },
-    "quickTips": {
-      "title": "Szybkie Wskazówki",
-      "tip1": "Użyj klawiszy strzałek w trybie Manualnym do precyzyjnego sterowania dronem",
-      "tip2": "Kliknij na mapie w Planiście Misji, aby dodać punkty trasy",
-      "tip3": "Filtruj alarmy według typu i statusu dla szybszej nawigacji",
-      "tip4": "Rozszerz transmisje wideo, klikając przycisk rozszerzania"
+    "manual": {
+      "title": "Podręcznik operatora",
+      "intro": "Stosuj poniższe procedury podczas pracy z kluczowymi elementami pulpitu. Każdy temat zawiera oczekiwany rezultat oraz zalecane kroki.",
+      "topics": [
+        {
+          "title": "Obszar wideo",
+          "description": "Monitoruj strumienie, zapisuj materiał dowodowy i diagnozuj problemy transmisji.",
+          "steps": [
+            "Najedź kursorem na podgląd, aby wyświetlić przyciski powiększenia, zrzutu i nagrywania klipu. Powiększaj widok do inspekcji detali, następnie wracaj do układu podzielonego.",
+            "Jeśli obraz się zatrzyma, zrestartuj podgląd przez złożenie i ponowne rozwinięcie. Uporczywe problemy zgłaszaj jako możliwą awarię enkodera.",
+            "Wykonuj zrzuty do raportów incydentów. Klipy dłuższe niż 30 sekund zaplanuj do pobrania z archiwum po zakończeniu lotu."
+          ]
+        },
+        {
+          "title": "Mapa misji",
+          "description": "Utrzymuj orientację przestrzenną i pilnuj, by dron pozostawał w strefie.",
+          "steps": [
+            "Korzystaj z legendy warstw, aby porównywać trasę planowaną z rzeczywistą.",
+            "Oddal widok, gdy logi fizyki sygnalizują odbicia od granic, a następnie skoryguj sterowanie ręczne lub plan trasy.",
+            "Sprawdzaj podpowiedzi znaczników, aby potwierdzić ostatni fix GNSS i kurs przed zgodą na manewry manualne."
+          ]
+        },
+        {
+          "title": "Kafelki telemetryczne",
+          "description": "Interpretuj stan podsystemów i reaguj na alerty.",
+          "steps": [
+            "Przeskanuj kolory kafelków w każdym rzędzie. Najpierw obsłuż czerwone alerty, potem żółte ostrzeżenia.",
+            "Rozwiń podpowiedź każdego kafelka, który zmienił kolor, aby poznać progi, historię i sugerowane działania.",
+            "Notuj wykonane czynności w dzienniku operacyjnym, by przekazać wnioski zespołowi utrzymania."
+          ]
+        },
+        {
+          "title": "Panel sterowania misją",
+          "description": "Wykonuj kluczowe polecenia bez opuszczania pulpitu.",
+          "steps": [
+            "Użyj pauzy, aby zatrzymać lot podczas analizy telemetryki lub zmian pogody.",
+            "Polecenie Powrót do domu wydawaj przy konieczności przerwania misji — upewnij się, że dok jest wolny.",
+            "Przełączaj tryb Manualny/Auto tylko wtedy, gdy masz kontrolę joystickiem. Każdą zmianę trybu odnotuj w logu do audytu."
+          ]
+        }
+      ]
     }
   }
 }

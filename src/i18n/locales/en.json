@@ -345,63 +345,149 @@
   "help": {
     "title": "Help & Features",
     "subtitle": "Discover all the powerful features and capabilities of the AISP platform",
-    "missionControl": {
-      "desc": "The Mission Control dashboard provides real-time monitoring and control of drone operations.",
-      "realTimeMap": "Real-time map visualization showing drone position, heading, and flight path",
-      "videoFeeds": "Live video feeds from RGB and thermal cameras with expandable view",
-      "telemetry": "Comprehensive telemetry data including speed, altitude, battery, GPS, and signal strength",
-      "manualMode": "Manual control mode using arrow keys or on-screen controls for direct drone steering",
-      "autoMode": "Automatic mode where the drone navigates autonomously with boundary collision detection",
-      "controls": "Mission controls: Pause, Return to Home, and switch between Manual/Auto modes"
+    "dashboard": {
+      "sections": {
+        "overview": {
+          "title": "Mission dashboard overview",
+          "description": "The dashboard combines live video, map context, telemetry, and mission controls so operators can oversee a mission without leaving the page.",
+          "items": {
+            "video": "Review RGB and thermal feeds side-by-side, expand either feed to fullscreen, and capture frames whenever additional evidence is required.",
+            "map": "Use the interactive map to track drone and base positions, inspect the geofence, and review recent physics logs when analysing motion.",
+            "mode": "Switch between auto and manual flight. Manual mode exposes keyboard and on-screen controls for precision adjustments."
+          }
+        },
+        "telemetry": {
+          "title": "Telemetry and system health",
+          "description": "Grouped telemetry tiles surface the latest battery, flight, communications, GNSS, weather, and docking station readings so you can validate mission readiness at a glance.",
+          "items": {
+            "tiles": "Colour-coded tiles highlight power, connectivity, navigation, mission progress, and dock mechanics. Hover to see thresholds and recent events.",
+            "flight": "Track altitude, heading, horizontal and vertical speed, and GNSS lock. Mission ETA updates automatically with real-time progress.",
+            "alerts": "Tiles switch to yellow or red when metrics drift from nominal ranges, helping you prioritise corrective actions."
+          }
+        },
+        "timeline": {
+          "title": "Mission timeline and logs",
+          "description": "Mission status, physics updates, and operational logs live in the right column. Use them to retrace actions and document anomalies.",
+          "items": {
+            "progress": "Mission progress highlights the current stage and upcoming steps. Auto missions show a progress bar; manual missions swap in live instructions.",
+            "log": "The operational log records mode changes, docking actions, and operator notes for audit-ready mission history.",
+            "physics": "Physics events call out max-speed moments, boundary bounces, or motion state changes that explain unexpected behaviour."
+          }
+        },
+        "controls": {
+          "title": "Manual control tools",
+          "description": "When you switch to manual mode, the dashboard provides keyboard shortcuts and on-screen buttons so pilots can steer the drone without leaving the workspace.",
+          "items": {
+            "keyboard": "Use the arrow keys to adjust thrust and yaw. The on-screen pad mirrors your inputs and prevents the map from stealing focus.",
+            "actions": "Pause, send the drone home, or toggle between auto and manual directly from the control bar.",
+            "safety": "Boundary clamping keeps manual flights inside the geo-fenced area. Status banners confirm docking state before you hand control back to auto."
+          }
+        }
+      },
+      "quickstart": {
+        "title": "Dashboard quickstart",
+        "cards": {
+          "layout": {
+            "title": "Understand the layout",
+            "description": "Left column houses live video feeds. Right column stacks the map, telemetry, mission progress, and logs, adapting to the current mode."
+          },
+          "video": {
+            "title": "Master the video tools",
+            "description": "Expand a feed for detailed inspections, then collapse to compare streams. Use capture buttons to gather imagery mid-flight."
+          },
+          "telemetry": {
+            "title": "Keep telemetry in context",
+            "description": "Hover any status tile for guidance. Values include explanations so you can brief teammates or compile reports quickly."
+          }
+        }
+      },
+      "quickTips": {
+        "title": "Quick tips for operators",
+        "items": [
+          "Expand a video feed before printing or sharing screenshots to remove interface chrome.",
+          "Switch to manual mode for fine positioning—arrow keys and the on-screen pad stay responsive even with the map focused.",
+          "Treat yellow and red tiles as prompts: hover to read the threshold and recommended follow-up.",
+          "Copy key entries from the operational log after each flight to build a mission appendix.",
+          "Use the map legend to confirm airspace boundaries before authorising manual manoeuvres."
+        ]
+      },
+      "guides": {
+        "title": "Step-by-step workflow guides",
+        "intro": "Use these checklists to prepare, supervise, and finalise every mission.",
+        "preFlight": {
+          "title": "Pre-flight readiness",
+          "description": "Complete these checks before arming the mission.",
+          "steps": [
+            "Verify camera feeds are online and expand each briefly to confirm clarity.",
+            "Review the map geofence and planned mission path for obstructions or restricted zones.",
+            "Check telemetry tiles for green status; resolve any yellow/red indicators, especially power and connectivity.",
+            "Confirm the dock shows a closed hatch, charging complete, and mission selection correct."
+          ]
+        },
+        "onMission": {
+          "title": "During the mission",
+          "description": "Monitor live systems while the drone is airborne.",
+          "steps": [
+            "Pin the mission progress card to track the current stage and ETA.",
+            "Hover telemetry tiles when status changes to understand context and decide corrective actions.",
+            "Use the control bar to pause or return home if weather or communications degrade.",
+            "Log noteworthy events in the operational log so the handover team sees the same context."
+          ]
+        },
+        "postFlight": {
+          "title": "Post-flight wrap-up",
+          "description": "Capture learnings and archive mission data.",
+          "steps": [
+            "Switch back to auto mode once the drone is docked and confirm charging resumes.",
+            "Download mission imagery or clips directly from the expanded video feed if evidence is required.",
+            "Export relevant log entries and attach them to the mission report in the Archive.",
+            "Reset alerts and verify all telemetry tiles return to nominal values before closing the session."
+          ]
+        }
+      },
+      "printNote": "Print view hides navigation chrome and preserves only the content within this help page."
     },
-    "missionPlanner": {
-      "desc": "Plan and manage flight routes by creating waypoints on the map.",
-      "addWaypoints": "Click on the map to add waypoints to your mission route",
-      "editWaypoints": "Edit waypoint names and reposition markers by dragging",
-      "timeline": "View mission timeline with estimated arrival times at each waypoint",
-      "saveRoute": "Save mission routes for future use"
-    },
-    "alertCenter": {
-      "desc": "Centralized hub for managing and responding to security alerts and incidents.",
-      "viewAlerts": "View all active, investigating, and resolved alerts",
-      "filter": "Filter alerts by status (Active, Investigating, Resolved) and type (Security, Fire, Intrusion, Equipment)",
-      "details": "View detailed alert information including location, timestamp, description, images, and videos",
-      "reports": "Generate PDF reports for alerts"
-    },
-    "fleet": {
-      "desc": "Monitor and manage your drone fleet and docking stations.",
-      "drones": "View status, battery level, location, and current mission for each drone",
-      "dockingStations": "Monitor docking station status, capacity, temperature, and humidity",
-      "status": "Track operational status: Active, Mission, Docked, Error, Charging, Maintenance",
-      "logs": "Access operational logs for each drone and docking station"
-    },
-    "archive": {
-      "desc": "Access historical mission data and recordings.",
-      "viewMissions": "Browse completed, failed, and cancelled missions",
-      "filter": "Filter missions by status and date range (Today, This Week, This Month, All Dates)",
-      "details": "View mission details including start/end times, duration, waypoints, and media",
-      "download": "Download mission images, videos, and operational logs"
-    },
-    "settings": {
-      "desc": "Configure application preferences and settings.",
-      "language": "Change interface language (Polish/English)",
-      "preferences": "Adjust application preferences and display options"
-    },
-    "general": {
-      "title": "General Features",
-      "map": "Interactive Map",
-      "mapDesc": "Interactive map with satellite view, controlled area boundaries, mission paths, drone traces, and alert markers. Toggle layers to customize your view.",
-      "video": "Video Feeds",
-      "videoDesc": "Live video streams from RGB (color) and thermal (infrared) cameras. Expand videos to full screen, take photos, and save video clips.",
-      "telemetry": "Real-time Telemetry",
-      "telemetryDesc": "Monitor drone data (bearing, speed, altitude, battery) and docking station information (temperature, humidity, flood status, docking status)."
-    },
-    "quickTips": {
-      "title": "Quick Tips",
-      "tip1": "Use arrow keys in Manual mode for precise drone control",
-      "tip2": "Click on the map in Mission Planner to add waypoints",
-      "tip3": "Filter alerts by type and status for faster navigation",
-      "tip4": "Expand video feeds by clicking the expand button"
+    "manual": {
+      "title": "Operator manual",
+      "intro": "Follow these procedures whenever you interact with key dashboard areas. Each topic lists the expected outcome and the recommended steps.",
+      "topics": [
+        {
+          "title": "Video workspace",
+          "description": "Monitor feeds, capture evidence, and troubleshoot streaming issues.",
+          "steps": [
+            "Hover a feed to reveal expand, snapshot, and clip controls. Use expand for detailed inspections, then collapse to restore the split view.",
+            "If a feed stalls, refresh the stream by collapsing and re-expanding it. Persistent issues usually indicate upstream encoder problems—log them immediately.",
+            "Capture snapshots for incident reports. Clips longer than 30 seconds should be queued for archive export after the flight."
+          ]
+        },
+        {
+          "title": "Mission map",
+          "description": "Keep spatial awareness and validate the drone remains inside the geofence.",
+          "steps": [
+            "Toggle layers from the legend to compare planned paths with the actual trace.",
+            "Zoom out whenever physics logs warn about boundary bounces, then adjust manual inputs or revise waypoints accordingly.",
+            "Use marker tooltips to confirm the latest GNSS fix and heading before authorising manual manoeuvres."
+          ]
+        },
+        {
+          "title": "Telemetry tiles",
+          "description": "Interpret subsystem status and respond to alerts quickly.",
+          "steps": [
+            "Scan the colour of each tile row-by-row. Prioritise red alerts (critical), then investigate yellow warnings.",
+            "Open the tooltip for any tile that changes colour to understand thresholds, historical values, and suggested actions.",
+            "Record follow-up actions in the operational log to close the feedback loop for maintenance teams."
+          ]
+        },
+        {
+          "title": "Mission controls",
+          "description": "Execute decisive actions without leaving the dashboard.",
+          "steps": [
+            "Use Pause to hold position while you analyse telemetry or weather changes.",
+            "Trigger Return to Home when the mission must abort—confirm the docking bay is clear before issuing the command.",
+            "Toggle Manual/Auto only when you have joystick authority. Log the reason for each mode change for post-flight audits."
+          ]
+        }
+      ]
     }
   }
 }
